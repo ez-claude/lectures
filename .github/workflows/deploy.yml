@@ -1,0 +1,84 @@
+name: Deploy Lectures to Vercel
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-week1:
+    name: Deploy week1
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.modified, 'week1/') || contains(github.event.head_commit.added, 'week1/') || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g vercel@latest
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week1
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_33rwCCwAt2bmes3EMj7GfD06iGvk
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week1
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_33rwCCwAt2bmes3EMj7GfD06iGvk
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week1
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_33rwCCwAt2bmes3EMj7GfD06iGvk
+
+  deploy-week2:
+    name: Deploy week2
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.modified, 'week2/') || contains(github.event.head_commit.added, 'week2/') || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g vercel@latest
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week2
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_dpdB4FpnZNphHUsWqZdWJrr74NIJ
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week2
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_dpdB4FpnZNphHUsWqZdWJrr74NIJ
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week2
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_dpdB4FpnZNphHUsWqZdWJrr74NIJ
+
+  deploy-week3:
+    name: Deploy week3
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.modified, 'week3/') || contains(github.event.head_commit.added, 'week3/') || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g vercel@latest
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week3
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_sBs6MI96upp38c8NaH3imNpzz83g
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week3
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_sBs6MI96upp38c8NaH3imNpzz83g
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: week3
+        env:
+          VERCEL_ORG_ID: team_oUUwl6AEsGQkKLAYqKBLtjg5
+          VERCEL_PROJECT_ID: prj_sBs6MI96upp38c8NaH3imNpzz83g
