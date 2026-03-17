@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>2주차 바이브코딩 워크숍 - 자료실</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafafa;--surface:#fff;--border:#e5e7eb;
+  --text:#111;--text2:#555;--text3:#999;
+  --accent:#2563eb;--accent2:#1d4ed8;--accent-bg:#eff6ff;
+  --green:#16a34a;--green-bg:#f0fdf4;
+  --orange:#ea580c;--orange-bg:#fff7ed;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;
+  --blue:#3b82f6;--blue-bg:#eff6ff;
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;line-height:1.7}
+.container{max-width:800px;margin:0 auto;padding:32px 20px}
+
+/* Header */
+.header{text-align:center;padding:48px 0 40px;border-bottom:1px solid var(--border)}
+.header h1{font-size:28px;font-weight:900;margin-bottom:8px}
+.header .sub{color:var(--text2);font-size:15px}
+.header .badge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+
+/* Section */
+.section{margin-top:40px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* Cards */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+  text-decoration:none;color:var(--text);
+  transition:all .15s;
+}
+.card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(37,99,235,.08)}
+.card-info{flex:1}
+.card-info h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.card-info p{font-size:13px;color:var(--text2)}
+.card-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;white-space:nowrap;margin-left:12px}
+.tag-essential{background:var(--accent-bg);color:var(--accent)}
+.tag-turn{background:var(--blue-bg);color:var(--blue)}
+.tag-guide{background:var(--green-bg);color:var(--green)}
+.tag-reference{background:var(--orange-bg);color:var(--orange)}
+.tag-settings{background:var(--purple-bg);color:var(--purple)}
+.dl-icon{margin-left:12px;color:var(--text3);font-size:18px}
+
+/* Flow */
+.flow{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:24px;margin-top:16px;
+}
+.flow-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.flow-step:last-child{margin-bottom:0}
+.flow-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px}
+.flow-text{font-size:14px}
+.flow-text strong{font-weight:700}
+.flow-text .dim{color:var(--text2);font-size:13px}
+
+/* Turn group */
+.turn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.turn-group a{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s}
+.turn-group a:hover{border-color:var(--accent);background:var(--accent-bg)}
+.turn-group a.t1{border-color:var(--blue);color:var(--blue)}
+.turn-group a.t2{border-color:var(--green);color:var(--green)}
+.turn-group a.t3{border-color:var(--orange);color:var(--orange)}
+
+/* Footer */
+.footer{text-align:center;padding:40px 0 32px;color:var(--text3);font-size:13px;border-top:1px solid var(--border);margin-top:48px}
+
+/* Mobile */
+@media(max-width:640px){
+  .container{padding:20px 16px}
+  .header{padding:32px 0 28px}
+  .header h1{font-size:22px}
+  .card{padding:16px 18px;flex-wrap:wrap;gap:8px}
+  .card-tag{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <div class="badge">2주차</div>
+  <h1>바이브코딩 워크숍 자료실</h1>
+  <p class="sub">AI 에이전트 시대, AI 제대로 쓰기 -- 실습 자료 (v3.0 턴 파이프라인)</p>
+</div>
+
+<!-- 실습 흐름 -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--accent)">!</div>
+    실습 순서 (120분)
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-text"><strong>Antigravity 세팅</strong> (10분)<br><span class="dim">구글 계정 로그인 -> idx.google.com 접속 -> 화면 확인</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-text"><strong>1차: 한 줄로 시켜보기</strong> (10분)<br><span class="dim">"대출이자 계산기 만들어줘" -> 결과 확인</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-text"><strong>2차: 3턴 파이프라인</strong> (15분)<br><span class="dim">Turn 1(골격) -> Turn 2(기능) -> Turn 3(다듬기) 순서대로 복붙</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-text"><strong>before/after 비교</strong> + "왜?" 물어보기 (10분)<br><span class="dim">1차 vs 2차 차이 체감 -> AI한테 "왜 이렇게 만들었어?" 질문</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-text"><strong>내 것 만들기</strong> (35분)<br><span class="dim">검증된 Turn의 주제만 바꿔서 내 앱 만들기 (A/B/C 코스)</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div class="flow-text"><strong>마무리</strong> (25분)<br><span class="dim">결과 공유 -> 핵심 정리 -> 가져갈 자료 안내</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 환경 준비 -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--accent)">0</div>
+    환경 준비
+  </div>
+
+  <a class="card" href="files/Antigravity_퀵가이드.md" download>
+    <div class="card-info">
+      <h3>Antigravity 퀵가이드</h3>
+      <p>실습 환경 준비 -- 접속, 프로젝트 생성, AI 대화법</p>
+    </div>
+    <span class="card-tag tag-essential">필수</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+</div>
+
+<!-- 1차 실습: 한 줄 -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--accent)">1</div>
+    1차 실습: 한 줄로 시켜보기
+  </div>
+
+  <a class="card" href="files/프롬프트_대출계산기.md" download>
+    <div class="card-info">
+      <h3>프롬프트: 대출이자 계산기</h3>
+      <p>1차 실습 -- 프롬프트 한 줄만으로 만들어보기</p>
+    </div>
+    <span class="card-tag tag-essential">1차</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+</div>
+
+<!-- 2차 실습: 3턴 파이프라인 -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--blue)">2</div>
+    2차 실습: 3턴 파이프라인 (대출계산기)
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Turn 1 -> Turn 2 -> Turn 3 순서대로 같은 채팅에 복붙하세요. 각 Turn 후 Preview 확인!</p>
+
+  <a class="card" href="files/대출계산기_Turn1_골격.md" download>
+    <div class="card-info">
+      <h3>Turn 1: 골격 (~40줄)</h3>
+      <p>기본 구조 + 레이아웃 + 슬라이더. 새 프로젝트에서 이것부터 복붙.</p>
+    </div>
+    <span class="card-tag tag-turn">Turn 1</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/대출계산기_Turn2_기능.md" download>
+    <div class="card-info">
+      <h3>Turn 2: 기능 추가 (~40줄)</h3>
+      <p>원리금균등/원금균등, 차트, 비교표. Turn 1 성공 후 같은 채팅에 복붙.</p>
+    </div>
+    <span class="card-tag tag-turn">Turn 2</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/대출계산기_Turn3_다듬기.md" download>
+    <div class="card-info">
+      <h3>Turn 3: 검증+다듬기 (~40줄)</h3>
+      <p>계산 정확도 확인, 반응형, 마감. 시간 부족하면 생략 OK.</p>
+    </div>
+    <span class="card-tag tag-turn">Turn 3</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+</div>
+
+<!-- 내 것 만들기 (A/B/C 코스) -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--green)">3</div>
+    내 것 만들기 (A/B/C 코스)
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">A: 내 주제로 Turn 변형 | B: 견적서생성기 따라하기 | C: 범용 템플릿으로 자유 제작</p>
+
+  <a class="card" href="files/견적서생성기_Turn1_골격.md" download>
+    <div class="card-info">
+      <h3>[B코스] 견적서 Turn 1: 골격</h3>
+      <p>주제 없는 분용 -- 견적서생성기 Turn 1 그대로 복붙</p>
+    </div>
+    <span class="card-tag tag-guide">B코스</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/견적서생성기_Turn2_기능.md" download>
+    <div class="card-info">
+      <h3>[B코스] 견적서 Turn 2: 기능</h3>
+      <p>항목 추가/삭제, 부가세, PDF 출력 기능</p>
+    </div>
+    <span class="card-tag tag-guide">B코스</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/견적서생성기_Turn3_다듬기.md" download>
+    <div class="card-info">
+      <h3>[B코스] 견적서 Turn 3: 다듬기</h3>
+      <p>검증 + 마감. 시간 부족하면 생략 OK.</p>
+    </div>
+    <span class="card-tag tag-guide">B코스</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/기준서_범용_웹앱_템플릿_v3.md" download>
+    <div class="card-info">
+      <h3>[C코스] 범용 템플릿 v2</h3>
+      <p>경험자용 -- 빈칸만 바꾸면 어떤 주제든 Turn 1/2/3 생성 가능</p>
+    </div>
+    <span class="card-tag tag-reference">C코스</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+</div>
+
+<!-- 집에서 혼자 하기 -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon" style="background:var(--orange)">+</div>
+    집에서 혼자 하기
+  </div>
+
+  <a class="card" href="files/기준서_작성_가이드.md" download>
+    <div class="card-info">
+      <h3>기준서 작성 가이드 v2.0</h3>
+      <p>Part 1: 해설서 (이해하기) + Part 2: AI용 복붙 문서 (실행하기)</p>
+    </div>
+    <span class="card-tag tag-reference">핵심 배포</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/기준서_파이프라인.md" download>
+    <div class="card-info">
+      <h3>파이프라인 설명서</h3>
+      <p>왜 나눠서 시키는지, Turn 1/2/3의 역할 설명</p>
+    </div>
+    <span class="card-tag tag-reference">참고</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/기준문서_대출계산기_v3.md" download>
+    <div class="card-info">
+      <h3>기준서 예시: 대출이자 계산기</h3>
+      <p>완성된 기준서 전문 (통째로 붙여넣기용)</p>
+    </div>
+    <span class="card-tag tag-settings">예시</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/기준문서_견적서생성기_v3.md" download>
+    <div class="card-info">
+      <h3>기준서 예시: 견적서 생성기</h3>
+      <p>완성된 기준서 전문 (통째로 붙여넣기용)</p>
+    </div>
+    <span class="card-tag tag-settings">예시</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+
+  <a class="card" href="files/Antigravity_Agent_설정_가이드.md" download>
+    <div class="card-info">
+      <h3>Antigravity Agent 설정 가이드</h3>
+      <p>권한 설정, 자동 실행, 보안 설정 상세</p>
+    </div>
+    <span class="card-tag tag-settings">참고</span>
+    <span class="dl-icon">&#8595;</span>
+  </a>
+</div>
+
+<div class="footer">
+  AI 에이전트 시대, AI 제대로 쓰기 -- 2주차 바이브코딩 워크숍 (v3.0)
+</div>
+
+</div>
+</body>
+</html>

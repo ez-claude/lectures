@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI 에이전트 시대, AI 제대로 쓰기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --surface:#151515;
+  --surface2:#1c1c1c;
+  --border:#2a2a2a;
+  --text:#f0f0f0;
+  --text2:#a0a0a0;
+  --text3:#606060;
+  --accent:#4ade80;
+  --accent2:#22c55e;
+  --accent-dim:rgba(74,222,128,0.12);
+  --danger:#f87171;
+  --danger-dim:rgba(248,113,113,0.12);
+  --blue:#60a5fa;
+  --yellow:#fbbf24;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Noto Sans KR',-apple-system,sans-serif;
+  line-height:1.6;overflow-x:hidden;
+}
+
+/* -- SLIDE SYSTEM -- */
+.slide{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  padding:64px 80px 48px;
+  position:relative;
+  border-bottom:1px solid var(--border);
+}
+.slide-inner{max-width:1100px;width:100%;margin:0 auto;}
+
+/* -- NAV BAR -- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+  background:rgba(10,10,10,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.4)}50%{box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+.topbar-title{font-size:13px;font-weight:700;color:var(--text2);}
+.topbar-nav{display:flex;gap:4px;overflow-x:auto;max-width:calc(100vw - 340px);scrollbar-width:none;-ms-overflow-style:none;}
+.topbar-nav::-webkit-scrollbar{display:none;}
+.topbar-btn{
+  background:transparent;border:1px solid transparent;
+  color:var(--text3);font-size:11px;font-weight:700;
+  padding:6px 12px;border-radius:6px;cursor:pointer;
+  font-family:inherit;transition:all 0.2s;
+  white-space:nowrap;flex-shrink:0;
+}
+.topbar-btn:hover{color:var(--text);background:var(--surface);}
+.topbar-btn.active{color:var(--accent);border-color:var(--accent);background:var(--accent-dim);}
+.slide-num{
+  font-size:11px;color:var(--text3);font-weight:700;
+  letter-spacing:1px;
+}
+
+/* -- PROGRESS -- */
+.progress{position:fixed;top:52px;left:0;height:2px;z-index:101;background:var(--accent);transition:width 0.15s;}
+
+/* -- TYPOGRAPHY -- */
+.tag{
+  display:inline-block;font-size:14px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px;
+}
+h1{font-size:clamp(42px,6vw,72px);font-weight:900;line-height:1.1;margin-bottom:20px;letter-spacing:-1px;}
+h2{font-size:clamp(34px,5vw,56px);font-weight:900;line-height:1.15;margin-bottom:16px;letter-spacing:-0.5px;}
+h3{font-size:clamp(22px,3vw,32px);font-weight:900;margin-bottom:12px;}
+.subtitle{font-size:clamp(18px,2.2vw,26px);color:var(--text2);line-height:1.6;max-width:800px;}
+.big-point{
+  font-size:clamp(26px,3.5vw,42px);font-weight:900;line-height:1.3;
+  color:var(--accent);margin:24px 0;
+}
+.dim{color:var(--text2);}
+.green{color:var(--accent);}
+.red{color:var(--danger);}
+.blue{color:var(--blue);}
+.yellow{color:var(--yellow);}
+
+/* -- TABLES -- */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;margin:24px 0;font-size:17px;}
+.tbl th{
+  background:var(--surface2);color:var(--accent);font-weight:700;
+  padding:16px 22px;text-align:left;font-size:16px;
+  border-bottom:2px solid var(--accent);
+}
+.tbl td{
+  padding:15px 22px;border-bottom:1px solid var(--border);
+  color:var(--text2);
+}
+.tbl tr:hover td{background:var(--surface);color:var(--text);}
+.tbl td:first-child{color:var(--text);font-weight:700;}
+.tbl-sm{font-size:15px;}
+.tbl-sm th,.tbl-sm td{padding:12px 18px;}
+
+/* -- COMPARE -- */
+.vs-grid{
+  display:grid;grid-template-columns:1fr 60px 1fr;
+  gap:0;margin:32px 0;align-items:stretch;
+}
+.vs-col{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:32px;
+}
+.vs-col.good{
+  border-color:rgba(74,222,128,0.3);
+  background:linear-gradient(135deg,rgba(74,222,128,0.06),var(--surface));
+}
+.vs-mid{
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:var(--text3);
+}
+.vs-head{font-size:24px;font-weight:900;margin-bottom:6px;}
+.vs-tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:4px 12px;border-radius:99px;
+  margin-bottom:20px;
+}
+.vs-tag.old{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.vs-tag.new{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(74,222,128,0.3);}
+.vs-list{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.vs-list li{font-size:18px;color:var(--text2);display:flex;gap:10px;line-height:1.6;}
+.vs-list li::before{content:'--';color:var(--text3);flex-shrink:0;}
+.vs-col.good .vs-list li::before{content:'>';color:var(--accent);}
+.vs-list li strong{color:var(--text);}
+
+/* -- CARDS -- */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0;}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:28px;transition:all 0.25s;
+}
+.card:hover{border-color:rgba(74,222,128,0.3);transform:translateY(-2px);}
+.card-icon{font-size:36px;margin-bottom:14px;display:block;}
+.card h4{font-size:20px;font-weight:700;margin-bottom:8px;}
+.card p{font-size:16px;color:var(--text2);line-height:1.6;}
+.card-top{border-top:3px solid var(--accent);}
+.card-top-red{border-top:3px solid var(--danger);}
+
+/* -- METHOD -- */
+.method-list{display:flex;flex-direction:column;gap:10px;margin:20px 0;}
+.method{
+  display:grid;grid-template-columns:44px 1fr;gap:16px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:18px 20px;transition:border-color 0.25s;
+}
+.method:hover{border-color:rgba(74,222,128,0.3);}
+.method-n{
+  width:44px;height:44px;border-radius:10px;
+  background:var(--accent);color:var(--bg);
+  font-size:20px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.method h4{font-size:18px;font-weight:700;margin-bottom:2px;}
+.method .principle{font-size:14px;color:var(--accent);font-weight:600;margin-bottom:4px;}
+.method p{font-size:15px;color:var(--text2);line-height:1.5;}
+.method code{
+  display:inline-block;font-size:14px;
+  background:var(--surface2);border:1px solid var(--border);
+  padding:2px 10px;border-radius:6px;color:var(--accent);margin-top:6px;
+  font-family:monospace;
+}
+
+/* -- KEY BOX -- */
+.keybox{
+  background:var(--surface);border:2px solid var(--accent);
+  border-radius:18px;padding:36px;margin:32px 0;text-align:center;
+}
+.keybox h3{color:var(--accent);margin-bottom:8px;}
+.keybox p{font-size:20px;color:var(--text2);line-height:1.7;}
+.formula{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;margin:20px 0;flex-wrap:wrap;font-size:20px;font-weight:900;
+}
+.f-good{
+  background:var(--accent-dim);border:1.5px solid rgba(74,222,128,0.3);
+  padding:12px 26px;border-radius:12px;color:var(--accent);
+}
+.f-bad{
+  background:var(--danger-dim);border:1.5px solid rgba(248,113,113,0.3);
+  padding:10px 22px;border-radius:12px;color:var(--danger);
+}
+.f-vs{color:var(--text3);font-size:14px;}
+
+/* -- PRACTICE BOX -- */
+.pbox{
+  background:linear-gradient(135deg,rgba(74,222,128,0.06),var(--surface));
+  border:2px solid rgba(74,222,128,0.2);
+  border-radius:18px;padding:36px;margin:24px 0;
+}
+.pbox h3{color:var(--accent);margin-bottom:16px;}
+.pstep{
+  display:flex;gap:16px;align-items:flex-start;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:18px 20px;margin-bottom:12px;
+}
+.pstep-time{
+  flex-shrink:0;background:var(--accent);color:var(--bg);
+  padding:5px 14px;border-radius:8px;font-size:14px;font-weight:900;
+}
+.pstep-num{
+  flex-shrink:0;background:var(--accent);color:var(--bg);
+  width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.pstep strong{display:block;font-size:18px;font-weight:700;margin-bottom:3px;}
+.pstep p{font-size:16px;color:var(--text2);line-height:1.6;}
+
+/* -- TOPIC PICK -- */
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0;}
+.topic{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;padding:28px;transition:all 0.25s;
+}
+.topic:hover{border-color:rgba(74,222,128,0.3);transform:translateY(-2px);}
+.topic-lv{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:12px;
+}
+.topic-lv.easy{background:rgba(74,222,128,0.12);color:var(--accent);border:1px solid rgba(74,222,128,0.3);}
+.topic-lv.mid{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.3);}
+.topic h4{font-size:24px;font-weight:900;margin-bottom:6px;}
+.topic p{font-size:17px;color:var(--text2);line-height:1.6;}
+
+/* -- DANGER -- */
+.danger-box{
+  background:var(--danger-dim);border:1.5px solid rgba(248,113,113,0.3);
+  border-radius:16px;padding:28px;margin:24px 0;
+}
+.danger-box h3{color:var(--danger);margin-bottom:14px;}
+.danger-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.danger-list li{
+  font-size:18px;color:var(--text2);display:flex;gap:12px;line-height:1.6;
+}
+.danger-list li::before{
+  content:'!';flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  background:var(--danger);color:#fff;font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* -- CASE CARD -- */
+.case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0;}
+.case{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:28px;
+  border-left:4px solid var(--accent);transition:all 0.25s;
+}
+.case:hover{transform:translateX(4px);border-color:rgba(74,222,128,0.3);}
+.case-tag{
+  display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;padding:4px 12px;border-radius:99px;margin-bottom:12px;
+  background:var(--accent-dim);color:var(--accent);
+}
+.case h4{font-size:20px;font-weight:700;margin-bottom:6px;}
+.case p{font-size:16px;color:var(--text2);line-height:1.6;}
+
+/* -- FOOTER -- */
+footer{
+  padding:48px 80px;text-align:center;
+  background:var(--surface);border-top:1px solid var(--border);
+}
+footer h3{font-size:22px;font-weight:900;color:var(--accent);margin-bottom:8px;}
+footer p{font-size:16px;color:var(--text3);}
+
+/* -- KEYBOARD HINT -- */
+.kb-hint{
+  position:fixed;bottom:20px;right:24px;z-index:100;
+  display:flex;gap:6px;align-items:center;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:6px 14px;font-size:11px;color:var(--text3);
+}
+.kb-key{
+  display:inline-block;background:var(--surface2);border:1px solid var(--border);
+  padding:2px 8px;border-radius:4px;font-weight:700;color:var(--text2);font-size:10px;
+}
+
+/* -- WEEK SWITCH -- */
+.week-switcher{display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:3px;}
+.week-btn{
+  background:transparent;border:none;
+  color:var(--text3);font-size:12px;font-weight:700;
+  padding:5px 14px;border-radius:6px;cursor:pointer;
+  font-family:inherit;transition:all 0.2s;letter-spacing:0.5px;
+}
+.week-btn:hover{color:var(--text);}
+.week-btn.active{background:var(--accent);color:var(--bg);}
+.week-section{display:none;}
+.week-section.active{display:block;}
+.week-badge{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:3px 10px;border-radius:99px;margin-bottom:12px;
+  background:rgba(96,165,250,0.12);color:var(--blue);border:1px solid rgba(96,165,250,0.3);
+}
+.week-badge.w2{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.3);}
+.phase-bar{
+  display:flex;gap:0;margin:28px 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;
+}
+.phase-item{
+  flex:1;padding:14px 16px;text-align:center;border-right:1px solid var(--border);
+  background:var(--surface);transition:background 0.2s;
+}
+.phase-item:last-child{border-right:none;}
+.phase-item.active-phase{background:var(--accent-dim);border-right-color:rgba(74,222,128,0.2);}
+.phase-item .ph-num{font-size:11px;color:var(--text3);font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.phase-item.active-phase .ph-num{color:var(--accent);}
+.phase-item .ph-name{font-size:14px;font-weight:700;color:var(--text2);}
+.phase-item.active-phase .ph-name{color:var(--accent);}
+.phase-item .ph-time{display:none;}
+.story-block{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;
+  margin-bottom:12px;position:relative;padding-left:60px;
+}
+.story-num{
+  position:absolute;left:20px;top:24px;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--accent);color:var(--bg);
+  font-size:13px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* -- WEEK 2 LARGE TEXT OVERRIDE (강의용 가독성) -- */
+#week2 .slide-inner p,
+#week2 .slide-inner li{font-size:18px !important;line-height:1.7 !important;}
+#week2 .slide-inner .subtitle{font-size:clamp(20px,2.5vw,28px) !important;}
+#week2 .slide-inner h4{font-size:22px !important;}
+#week2 .slide-inner .tbl{font-size:18px !important;}
+#week2 .slide-inner .tbl th{font-size:17px !important;padding:14px 20px !important;}
+#week2 .slide-inner .tbl td{font-size:17px !important;padding:13px 20px !important;}
+#week2 .slide-inner .tbl-sm{font-size:17px !important;}
+#week2 .slide-inner .tbl-sm th,
+#week2 .slide-inner .tbl-sm td{font-size:16px !important;padding:12px 18px !important;}
+#week2 .slide-inner .story-block p{font-size:17px !important;}
+#week2 .slide-inner .story-block h4{font-size:21px !important;}
+#week2 .slide-inner .pstep strong{font-size:20px !important;}
+#week2 .slide-inner .pstep p{font-size:17px !important;}
+#week2 .slide-inner .keybox p{font-size:22px !important;}
+#week2 .slide-inner .card p{font-size:17px !important;line-height:1.7 !important;}
+#week2 .slide-inner .card h4{font-size:21px !important;
+}
+.story-block h4{font-size:17px;font-weight:700;margin-bottom:6px;}
+.story-block p{font-size:15px;color:var(--text2);line-height:1.7;}
+.step7-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:24px 0;}
+.step7{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;
+  border-left:3px solid var(--accent);
+}
+.step7-label{
+  display:flex;gap:10px;align-items:center;margin-bottom:8px;
+}
+.step7-num{
+  width:26px;height:26px;border-radius:6px;
+  background:var(--accent);color:var(--bg);
+  font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step7 h4{font-size:15px;font-weight:700;}
+.step7 p{font-size:13px;color:var(--text2);line-height:1.6;margin-top:6px;}
+/* RESPONSIVE */
+@media(max-width:1200px){
+  .topbar-nav{max-width:calc(100vw - 300px);}
+  .topbar-btn{font-size:10px;padding:5px 8px;}
+}
+@media(max-width:900px){
+  .slide{padding:70px 28px 40px;}
+  .vs-grid{grid-template-columns:1fr;gap:12px;}
+  .vs-mid{display:none;}
+  .topic-grid{grid-template-columns:1fr;}
+  .topbar-nav{display:none;}
+  footer{padding:36px 28px;}
+}
+@media(max-width:600px){
+  .slide{padding:64px 18px 32px;}
+  .card-grid{grid-template-columns:1fr;}
+  .case-grid{grid-template-columns:1fr;}
+  .method{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="prog" style="width:0"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-dot"></span>
+    <span class="topbar-title">AI 제대로 쓰기</span>
+  </div>
+  <div class="week-switcher">
+    <button class="week-btn active" id="btnWeek1" onclick="switchWeek(1)">1주차</button>
+    <button class="week-btn" id="btnWeek2" onclick="switchWeek(2)">2주차</button>
+  </div>
+  <div class="topbar-nav" id="nav"></div>
+  <div class="slide-num" id="slideNum">1 / —</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WEEK 1 SECTION -->
+<!-- ============================================================ -->
+<div class="week-section active" id="week1">
+
+<!-- ============================== -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================== -->
+<div class="slide" id="s-title">
+<div class="slide-inner" style="text-align:center;display:flex;flex-direction:column;align-items:center;">
+  <div class="tag">2026</div>
+  <h1>AI 에이전트 시대<br/><span class="green">AI 제대로 쓰기</span></h1>
+  <p class="subtitle" style="text-align:center;margin:0 auto;">
+    ChatGPT 써봤는데 결과물이 별로였던 경험, 있으시죠?<br/>
+    프롬프트를 잘 못 써서가 아닙니다.<br/>
+    <strong class="green">맥락 전체를 안 줘서</strong>입니다.
+  </p>
+  <div style="margin-top:40px;font-size:36px;font-weight:900;color:var(--accent);
+    background:var(--accent-dim);border:2px solid rgba(74,222,128,0.3);
+    padding:20px 48px;border-radius:14px;">
+    AI를 채팅창에서 꺼내라
+  </div>
+  <div style="margin-top:48px;display:flex;flex-direction:column;gap:16px;align-items:center;">
+    <p style="color:var(--text3);font-size:16px;">Antigravity 안 받으신 분, 지금 다운 시작하세요 (교육 듣는 동안 설치됩니다)</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+      <a href="https://idx.google.com" target="_blank" style="display:inline-block;padding:12px 28px;background:var(--blue);color:#000;font-size:15px;font-weight:900;border-radius:10px;text-decoration:none;transition:opacity 0.2s;">Antigravity 열기</a>
+    </div>
+    <p style="color:var(--text3);font-size:13px;margin-top:4px;">강의자료: claude-remote-control-guide-nine.vercel.app</p>
+    <div style="margin-top:20px;padding:16px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
+      <span style="font-size:13px;color:var(--text3);">실시간 데모 결과물</span>
+      <a href="https://quotation-generator-2ruiz62c7-giwoong-ryus-projects.vercel.app" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(96,165,250,0.1);color:var(--blue);border:1px solid rgba(96,165,250,0.3);border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">&#8599; 배포된 견적서생성기</a>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 2: TIME OVERVIEW -->
+<!-- ============================== -->
+<div class="slide" id="s-time">
+<div class="slide-inner">
+  <div class="tag">Overview</div>
+  <h2>오늘 강의 흐름</h2>
+  <div class="card-grid" style="grid-template-columns:repeat(3,1fr);margin-top:32px;">
+    <div class="card card-top" style="text-align:center;">
+      <h4 style="font-size:22px;">1부: 에이전트 시대</h4>
+      <p style="font-size:17px;margin-top:8px;">빅테크는 이미 바뀌었다<br/>근데 나는 왜 안 되지?</p>
+    </div>
+    <div class="card card-top" style="text-align:center;">
+      <h4 style="font-size:22px;">2부: 왜 + 어떻게</h4>
+      <p style="font-size:17px;margin-top:8px;">안 되는 3가지 이유<br/>자료 / 습관 / 세팅으로 해결</p>
+    </div>
+    <div class="card card-top" style="text-align:center;border-top-color:var(--accent);">
+      <h4 style="font-size:22px;color:var(--accent);">실습: 직접 만들기</h4>
+      <p style="font-size:17px;margin-top:8px;">Antigravity로 만들고 배포<br/>규칙 유무에 따른 차이 체감</p>
+    </div>
+  </div>
+  <div style="margin-top:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <!-- 2부 교육 흐름 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">2부 교육</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">안 되는 이유 <span style="color:var(--text3);">3가지</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">2026 현황 <span style="color:var(--text3);">뭐가 달라졌나</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">해결법 <span style="color:var(--text3);">자료+습관+세팅</span></span>
+        </div>
+      </div>
+    </div>
+    <!-- 2부 사례 흐름 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:8px;">2부 사례</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">재료의 힘 <span style="color:var(--text3);">좋은 자료 = 좋은 결과</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">규칙의 힘 <span style="color:var(--text3);">세팅 = 품질 제어</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">5가지 방법 <span style="color:var(--text3);">오늘 바로 쓸 수 있는</span></span>
+        </div>
+      </div>
+    </div>
+    <!-- 실습 흐름 -->
+    <div style="background:var(--accent-dim);border:1px solid rgba(74,222,128,0.3);border-radius:12px;padding:20px;">
+      <div style="font-size:13px;color:var(--accent);margin-bottom:8px;">실습</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">1차: 규칙 없이 <span style="color:var(--text3);">그냥 시키기</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">2차: 규칙 넣고 <span style="color:var(--text3);">차이 체감</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;"></span>
+          <span style="font-size:15px;color:var(--text2);">배포 + 공유 <span style="color:var(--text3);">내 URL 만들기</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 3: 글로벌 에이전트 -->
+<!-- ============================== -->
+<div class="slide" id="s-global">
+<div class="slide-inner">
+  <div class="tag">Part 1 &mdash; 글로벌 에이전트</div>
+  <h2>빅테크는 이미 에이전트를 내놨다</h2>
+  <p class="subtitle">2025~2026, 모든 빅테크가 "자율 실행"으로 전환 중.</p>
+
+  <div class="card-grid" style="grid-template-columns:repeat(2,1fr);margin-top:32px;">
+    <div class="card card-top" style="border-top-color:var(--blue);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;">OpenAI</h4>
+        <span style="font-size:13px;color:var(--text3);">Operator / ChatGPT Agent</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        <strong class="green">"부산 여행 짜줘"</strong> 한 마디에<br/>
+        기차표 검색 &#8594; 호텔 비교 &#8594; 예약 &#8594; 결제<br/>
+        <strong>사람이 중간에 할 일 = 0</strong>
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        사용자: "3월 부산 1박2일 짜줘"<br/>
+        AI: KTX 예매 &#8594; 해운대 호텔 3곳 비교 &#8594; 결제 &#8594; 일정표 전송
+      </div>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--blue);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;">Google</h4>
+        <span style="font-size:13px;color:var(--text3);">Antigravity / Commerce</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        <strong class="green">"가성비 헤드폰 찾아줘"</strong> 한 마디에<br/>
+        검색 &#8594; 비교 &#8594; 결제까지 한번에<br/>
+        <strong>코드~배포도 자율 실행 (오늘 실습 도구)</strong>
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        사용자: "노이즈캔슬링 5만원대"<br/>
+        AI: 쿠팡/네이버 비교 &#8594; 리뷰 분석 &#8594; 최저가 결제까지
+      </div>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--blue);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;">Anthropic</h4>
+        <span style="font-size:13px;color:var(--text3);">Claude Code RC (2026.02)</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        <strong class="green">"엑셀 열어서 차트 만들고 메일 보내"</strong><br/>
+        폰에서 시키면 PC가 직접 실행<br/>
+        <strong>GitHub 전체 커밋의 4%가 AI</strong>
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        사용자 (폰): "매출 보고서 만들어서 팀장님한테 보내"<br/>
+        PC: 엑셀 열기 &#8594; 차트 생성 &#8594; 메일 작성 &#8594; 발송
+      </div>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--text3);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;">업계 표준화</h4>
+        <span style="font-size:13px;color:var(--text3);">MCP (2025.12)</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        OpenAI + Google + MS + Linux Foundation<br/>
+        <strong class="green">에이전트 통신 표준</strong> 합의<br/>
+        <strong>에이전트끼리 협업하는 시대</strong>
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        여행 에이전트가 날씨 에이전트에게 "부산 날씨 알려줘"<br/>
+        &#8594; 서로 다른 AI끼리 표준 언어로 대화
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 4: 한국 + 실제 사용 -->
+<!-- ============================== -->
+<div class="slide" id="s-examples">
+<div class="slide-inner">
+  <div class="tag">Part 1 &mdash; 한국도 시작했다</div>
+  <h2>네이버, 카카오도<br/>에이전트 시대</h2>
+
+  <div class="card-grid" style="grid-template-columns:repeat(2,1fr);margin-top:32px;">
+    <div class="card card-top">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;color:var(--accent);">네이버 Agent N</h4>
+        <span style="font-size:13px;color:var(--text3);">2025~</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        <strong class="green">"큰 바디로션 추천해줘"</strong><br/>
+        구매이력 분석 &#8594; 추천 &#8594; 결제까지<br/>
+        검색이 아니라 <strong>행동</strong>. 전 서비스 탑재.
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        사용자: "지난번 산 거 비슷한 거 더 큰 걸로"<br/>
+        AI: 구매이력 확인 &#8594; 대용량 3개 비교 &#8594; 네이버페이 결제
+      </div>
+    </div>
+    <div class="card card-top">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h4 style="font-size:22px;color:var(--accent);">카카오 카나나</h4>
+        <span style="font-size:13px;color:var(--text3);">2025~</span>
+      </div>
+      <p style="font-size:17px;line-height:1.7;color:var(--text2);">
+        카톡에서 <strong class="green">"생일파티 어디서 하지?"</strong><br/>
+        대화 맥락 읽고 &#8594; 장소 추천 &#8594; 카카오페이 결제<br/>
+        <strong>카톡 안에서 다 끝남</strong>.
+      </p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:8px;font-size:15px;color:var(--text3);line-height:1.6;">
+        친구 카톡: "토요일 강남 생파 어디 좋아?"<br/>
+        카나나: 대화 맥락 파악 &#8594; 강남 맛집 추천 &#8594; 예약 &#8594; 카카오페이 결제
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:36px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:14px;color:var(--text3);margin-bottom:6px;">Salesforce</div>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;">슬랙 "VPN 안 돼" &#8594; 기기 조회 &#8594; <strong>스스로 해결</strong></p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:14px;color:var(--text3);margin-bottom:6px;">Amazon</div>
+      <p style="font-size:16px;color:var(--text2);line-height:1.6;">여행 계획 &#8594; 날씨/항공/호텔 <strong>에이전트 팀 협업</strong></p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:14px;color:var(--text3);margin-bottom:6px;">공통점</div>
+      <p style="font-size:16px;color:var(--accent);line-height:1.6;font-weight:700;">말 한마디면<br/>AI가 결과까지</p>
+    </div>
+  </div>
+
+  <p class="big-point" style="text-align:center;margin-top:32px;">앱 여러 개 열고 누르던 시대는 끝났다</p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: AI 성능 변화 1/2 (표) -->
+<!-- ============================== -->
+<div class="slide" id="s-context">
+<div class="slide-inner">
+  <div class="tag">Part 1 &mdash; 왜 지금?</div>
+  <h2>9개월 만에<br/><span class="green">8배~78배</span> 커진 AI</h2>
+  <p style="font-size:22px;color:var(--text2);margin-top:12px;">컨텍스트 윈도우 = AI가 <strong>한번에 읽을 수 있는 양</strong></p>
+
+  <table style="width:100%;margin-top:36px;border-collapse:collapse;font-size:22px;">
+    <thead>
+      <tr style="border-bottom:3px solid var(--accent);">
+        <th style="text-align:left;padding:16px;color:var(--text3);font-weight:700;font-size:18px;">회사</th>
+        <th style="text-align:center;padding:16px;color:var(--text3);font-weight:700;font-size:18px;">2025.06</th>
+        <th style="text-align:center;padding:16px;color:var(--text3);font-weight:700;font-size:18px;">2025.12</th>
+        <th style="text-align:center;padding:16px;color:var(--text3);font-weight:700;font-size:18px;">2026.03</th>
+        <th style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:18px;">증가</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:16px;font-weight:700;font-size:22px;">OpenAI</td>
+        <td style="text-align:center;padding:16px;color:var(--text3);">128K</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);">400K</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:26px;">1.05M</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:28px;">8x</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:16px;font-weight:700;font-size:22px;">Anthropic</td>
+        <td style="text-align:center;padding:16px;color:var(--text3);">200K</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);">200K</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:26px;">1M 베타</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);font-size:28px;">~5x</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:16px;font-weight:700;font-size:22px;">Google</td>
+        <td style="text-align:center;padding:16px;color:var(--text3);">1M</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);">1M</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:26px;">2M</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);font-size:28px;">2x</td>
+      </tr>
+      <tr>
+        <td style="padding:16px;font-weight:700;font-size:22px;">Meta</td>
+        <td style="text-align:center;padding:16px;color:var(--text3);">128K</td>
+        <td style="text-align:center;padding:16px;color:var(--text2);">128K</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:26px;">10M</td>
+        <td style="text-align:center;padding:16px;color:var(--accent);font-weight:900;font-size:28px;">78x</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: AI 성능 변화 2/2 (의미) -->
+<!-- ============================== -->
+<div class="slide" id="s-context2">
+<div class="slide-inner" style="display:flex;flex-direction:column;align-items:center;">
+  <div class="tag">Part 1 &mdash; 이게 왜 중요한가</div>
+  <h2 style="text-align:center;">읽는 양이 커지니까<br/><span class="green">시키는 방식</span>이 바뀌었다</h2>
+
+  <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;width:100%;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:48px;font-weight:900;color:var(--danger);">128K</div>
+      <div style="font-size:18px;color:var(--text3);margin-top:8px;">2025년 6월</div>
+      <p style="font-size:22px;color:var(--text2);margin-top:16px;line-height:1.6;"><strong>3번 나눠서</strong><br/>시키기</p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:48px;font-weight:900;color:var(--yellow);">400K</div>
+      <div style="font-size:18px;color:var(--text3);margin-top:8px;">2025년 12월</div>
+      <p style="font-size:22px;color:var(--text2);margin-top:16px;line-height:1.6;"><strong>기준서 1장</strong>으로<br/>가능해짐</p>
+    </div>
+    <div style="background:var(--accent-dim);border:2px solid var(--accent);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:48px;font-weight:900;color:var(--accent);">1M+</div>
+      <div style="font-size:18px;color:var(--text3);margin-top:8px;">2026년 3월 (지금)</div>
+      <p style="font-size:22px;color:var(--text);margin-top:16px;line-height:1.6;"><strong>리서치+설계+구현</strong><br/>전부 한 세션</p>
+    </div>
+  </div>
+
+  <p style="font-size:28px;font-weight:900;color:var(--text);text-align:center;margin-top:48px;">
+    나눠서 시킬 필요가 없어졌다 &#8594; <span class="green">규칙만 주면 된다</span>
+  </p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 현실 체크 -->
+<!-- ============================== -->
+<div class="slide" id="s-reality">
+<div class="slide-inner">
+  <div class="tag" style="color:var(--danger);">Part 1 &mdash; 현실 체크</div>
+  <h2>"근데 해보면<br/><span class="red">안 되던데?</span>"</h2>
+  <p class="subtitle" style="margin-top:16px;">검색해서 비교해서 결제까지? 말은 좋은데.<br/>내가 직접 해보면 <strong>원하는 대로 정확히</strong> 안 됩니다.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px;">
+    <div style="background:var(--danger-dim);border:1.5px solid rgba(248,113,113,0.3);border-radius:14px;padding:24px;">
+      <h4 style="font-size:18px;color:var(--danger);margin-bottom:12px;">흔한 경험</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">"부산 여행 짜줘" &#8594; 폐업한 식당 추천</p>
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">"보고서 써줘" &#8594; 어제 고친 실수 오늘 또 반복</p>
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">"가격 비교해줘" &#8594; 숫자가 미묘하게 다름</p>
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">"이메일 보내줘" &#8594; 받는 사람 이름 틀림</p>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:2px solid var(--danger);border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:center;">
+      <h4 style="font-size:20px;color:var(--danger);margin-bottom:12px;text-align:center;">핵심 문제</h4>
+      <p style="font-size:22px;font-weight:900;color:var(--text);text-align:center;line-height:1.6;">
+        잘못된 자율 실행은<br/>
+        <span style="font-size:26px;color:var(--danger);">안 되는 것보다 더 위험</span>
+      </p>
+      <p style="font-size:15px;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5;">
+        틀린 금액으로 결제, 잘못된 정보로 보고서 제출
+      </p>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:24px;border-color:var(--yellow);">
+    <p style="font-size:22px;color:var(--yellow);font-weight:900;">왜 안 되는 걸까?</p>
+    <p style="font-size:17px;color:var(--text2);margin-top:8px;">프롬프트만 줬거나, 기준 없이 시켰거나, 한번에 다 시켰거나</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 5: 챗봇 vs 에이전트 + 핵심 -->
+<!-- ============================== -->
+<div class="slide" id="s-compare">
+<div class="slide-inner">
+  <div class="tag">Part 1 &mdash; 그래서 에이전트가 뭔데?</div>
+  <h2>챗봇 vs 에이전트</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 60px 1fr;gap:0;margin-top:32px;align-items:stretch;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+      <div style="font-size:14px;font-weight:700;color:var(--text3);letter-spacing:1px;margin-bottom:16px;">CHATBOT</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:16px;color:var(--text2);">
+        <p>물어봐야 답함</p>
+        <p>매 단계마다 지시 필요</p>
+        <p>결과물 = 텍스트 답변</p>
+        <p>프롬프트로 매번 시키기</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">vs</div>
+    <div style="background:linear-gradient(135deg,rgba(74,222,128,0.06),var(--surface));border:1px solid rgba(74,222,128,0.3);border-radius:16px;padding:28px;">
+      <div style="font-size:14px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:16px;">AGENT</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:16px;color:var(--text2);">
+        <p><strong class="green">목표 주면 끝까지 자율 실행</strong></p>
+        <p><strong class="green">중간 개입 없이 완료</strong></p>
+        <p><strong class="green">결과물 = 파일 / 사이트 / 앱</strong></p>
+        <p><strong class="green">사전에 규칙/자료로 세팅</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:32px;border-color:var(--yellow);">
+    <p style="font-size:22px;font-weight:900;color:var(--text);">에이전트는 강력하다. <span style="color:var(--yellow);">하지만 "그냥 시키면" 안 된다</span></p>
+    <div style="display:flex;justify-content:center;gap:24px;margin-top:16px;flex-wrap:wrap;">
+      <span style="padding:8px 20px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.3);border-radius:8px;color:var(--accent);font-weight:700;font-size:16px;">1. 세팅하고</span>
+      <span style="padding:8px 20px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);border-radius:8px;color:var(--blue);font-weight:700;font-size:16px;">2. 제대로 지시하고</span>
+      <span style="padding:8px 20px;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:8px;color:var(--yellow);font-weight:700;font-size:16px;">3. 확인한다</span>
+    </div>
+    <p style="font-size:16px;color:var(--text3);margin-top:12px;">이 3단계가 없으면 "해봤는데 안 돼"가 반복됩니다</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 왜 결과물이 별로였나 - before 사례 -->
+<!-- ============================== -->
+<div class="slide" id="s-problem">
+<div class="slide-inner">
+  <div class="tag">2-1 &mdash; 왜 별로였나</div>
+  <h2>프롬프트 잘 못 써서?<br/><span class="red">아닙니다</span></h2>
+  <p class="subtitle">프롬프트를 아무리 구체적으로 써봐도 결과가 비슷한 이유가 있습니다.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;">
+    <div style="background:var(--danger-dim);border:1.5px solid rgba(248,113,113,0.3);border-radius:14px;padding:24px;">
+      <div style="font-size:13px;font-weight:700;color:var(--danger);letter-spacing:1px;margin-bottom:10px;">BEFORE</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
+        <p style="font-size:15px;color:var(--text2);font-style:italic;">"우리 카페 블로그 글 써줘"</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;">
+        <p style="font-size:13px;color:var(--text3);line-height:1.6;">"저희 카페는 최상의 원두를 엄선하여 고객 여러분께 최고의 커피 경험을 제공합니다. 따뜻한 분위기 속에서 특별한 하루를 시작해보세요."</p>
+      </div>
+      <p style="font-size:14px;color:var(--danger);margin-top:10px;font-weight:700;">어디서 본 듯한 뻔한 글</p>
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:center;">
+      <h3 style="font-size:22px;margin-bottom:16px;">원인은 <span class="red">딱 3가지</span></h3>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:var(--danger);color:#fff;font-size:13px;font-weight:900;padding:3px 10px;border-radius:6px;flex-shrink:0;">1</span>
+          <div>
+            <strong style="font-size:16px;">프롬프트만 줬다</strong>
+            <p style="font-size:13px;color:var(--text2);margin-top:2px;">재료도, 기준도 없이 말만 함 = 레시피 없이 "맛있게 해줘"</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:var(--yellow);color:#000;font-size:13px;font-weight:900;padding:3px 10px;border-radius:6px;flex-shrink:0;">2</span>
+          <div>
+            <strong style="font-size:16px;">기준 없이 시켰다</strong>
+            <p style="font-size:13px;color:var(--text2);margin-top:2px;">"잘"이 뭔지 기준을 안 줌 = 골대 없이 골 넣으라는 것</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="background:var(--blue);color:#000;font-size:13px;font-weight:900;padding:3px 10px;border-radius:6px;flex-shrink:0;">3</span>
+          <div>
+            <strong style="font-size:16px;">한번에 다 시켰다</strong>
+            <p style="font-size:13px;color:var(--text2);margin-top:2px;">"블로그 10개 써줘" 한 방에 = 주문서 하나에 10가지 요리</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:20px;border-color:var(--yellow);">
+    <p style="font-size:20px;font-weight:900;color:var(--text);">프롬프트는 맥락의 <span style="color:var(--yellow);">일부일 뿐</span>이다</p>
+    <p style="font-size:16px;color:var(--text2);margin-top:8px;">재료(사진, 문서, 데이터)와 규칙(기준서, 단계별 지시)을 <strong>같이</strong> 줘야 한다</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 해결의 3단계 -->
+<!-- ============================== -->
+<div class="slide" id="s-solution">
+<div class="slide-inner">
+  <div class="tag">2-1 &mdash; 해결의 구조</div>
+  <h2>해결도 같은 구조다:<br/><span class="green">세팅 -> 지시 -> 확인</span></h2>
+  <p class="subtitle">3단계 모두, 내가 하는 건 "말하기"와 "확인"뿐입니다. 나머지는 AI가 합니다.</p>
+
+  <div class="method-list" style="margin-top:28px;">
+    <div class="method" style="border-left:3px solid var(--accent);">
+      <div class="method-n" style="background:var(--accent);">1</div>
+      <div>
+        <h4>세팅 <span style="color:var(--text3);font-weight:400;">&mdash; 한 번 만들면 매번 자동 적용</span></h4>
+        <p style="margin-top:4px;">
+          <strong>원인:</strong> 프롬프트만 줬다 &#8594; 재료도 기준도 없었다<br/>
+          <strong style="color:var(--accent);">해결:</strong> 규칙 파일을 프로젝트에 넣어둔다. AI한테 시키면 됨
+        </p>
+      </div>
+    </div>
+    <div class="method" style="border-left:3px solid var(--yellow);">
+      <div class="method-n" style="background:var(--yellow);">2</div>
+      <div>
+        <h4>지시 <span style="color:var(--text3);font-weight:400;">&mdash; 기준 먼저 + 쪼개서</span></h4>
+        <p style="margin-top:4px;">
+          <strong>원인:</strong> 기준 없이, 한번에 다 시켰다<br/>
+          <strong style="color:var(--yellow);">해결:</strong> "좋은 X의 기준 먼저 정리해줘" &#8594; 확인 &#8594; "이 기준으로 만들어줘"
+        </p>
+      </div>
+    </div>
+    <div class="method" style="border-left:3px solid var(--blue);">
+      <div class="method-n" style="background:var(--blue);">3</div>
+      <div>
+        <h4>확인 <span style="color:var(--text3);font-weight:400;">&mdash; AI한테 스스로 검토시킨다</span></h4>
+        <p style="margin-top:4px;">
+          <strong>원인:</strong> 결과물을 그대로 가져다 썼다<br/>
+          <strong style="color:var(--blue);">해결:</strong> "방금 만든 거 기준으로 검토해봐. 뭐가 빠졌는지 알려줘"
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:20px;">
+    <p style="font-size:20px;font-weight:900;">세팅하고, 제대로 지시하고, 확인한다</p>
+    <p style="font-size:16px;color:var(--text2);margin-top:6px;">이론은 여기까지. 이제 <strong class="green">실제 사례</strong>를 봅니다</p>
+  </div>
+</div>
+</div>
+
+
+<!-- ============================== -->
+<!-- SLIDE 8: AI 도구 케이스 (재료) -->
+<!-- ============================== -->
+<div class="slide" id="s-tool">
+<div class="slide-inner">
+  <div class="tag">2-2 &mdash; 사례: 재료의 힘</div>
+  <h2>좋은 재료를 줬더니<br/>진짜 결과물이 나옴</h2>
+  <p class="subtitle">에이전트가 아닙니다. AI 도구에 좋은 재료를 넣으면 채팅창 밖의 결과물이 나옵니다.</p>
+  <div class="case-grid" style="margin-top:32px;">
+    <div class="case">
+      <div class="case-tag">Web</div>
+      <h4>랜딩페이지</h4>
+      <p>참고할 페이지를 재료로 줌 &#8594; 실제 배포 가능한 랜딩페이지 완성</p>
+    </div>
+    <div class="case">
+      <div class="case-tag">Dev</div>
+      <h4>결제 시스템</h4>
+      <p>AI한테 구현 플랜을 먼저 요청 &#8594; 그 자료를 다시 줘서 결제 기능 구현</p>
+    </div>
+    <div class="case">
+      <div class="case-tag">Design</div>
+      <h4>청첩장</h4>
+      <p>사진 + 정보 + 디자인 레퍼런스 &#8594; 실제 보낸 모바일 청첩장</p>
+    </div>
+  </div>
+  <div class="keybox" style="border-color:var(--border);margin-top:36px;">
+    <h3 style="color:var(--text);">포인트</h3>
+    <p>좋은 <strong class="green">재료</strong>를 줬더니 채팅창 밖의 <strong class="green">진짜 결과물</strong>이 나옴</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 9: 에이전트 케이스 1 (자율 실행) -->
+<!-- ============================== -->
+<div class="slide" id="s-agent1">
+<div class="slide-inner">
+  <div class="tag">2-3 &mdash; 에이전트 케이스</div>
+  <h2>시작만 시키면 알아서 진행,<br/><span class="green">사람은 확인만</span></h2>
+  <p class="subtitle">규칙이 쌓일수록 사람 개입이 줄어듭니다. 처음부터 완벽하진 않지만, 반복할수록 좋아집니다.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;">
+    <div class="case" style="padding:24px;">
+      <div class="case-tag">Multi-Agent</div>
+      <h4 style="font-size:20px;">Dev Insights</h4>
+      <p style="margin-top:8px;">긱뉴스 크롤링 &#8594; GPT 분석 &#8594; 리포트 자동 생성</p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+          1. 크롤링 &#8594; 2. 분석 &#8594; 3. 리포트까지 AI가 진행<br/>
+          <strong class="green">&#8594; 사람은 시작과 결과 확인만. 규칙 쌓일수록 정확도 UP</strong>
+        </div>
+      </div>
+    </div>
+    <div class="case" style="padding:24px;">
+      <div class="case-tag">Rule Control</div>
+      <h4 style="font-size:20px;">QT Video SaaS</h4>
+      <p style="margin-top:8px;">규칙 파일(.cursorrules)로 에이전트 행동 범위 제어</p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+          "이 폴더만 수정해" / "이 패턴은 쓰지 마" / "이 API 버전만 써"<br/>
+          <strong class="green">&#8594; 처음엔 규칙 5개, 지금은 30개+. 개입이 확 줄었다</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 10: 에이전트 케이스 2 (제어 = 품질) -->
+<!-- ============================== -->
+<div class="slide" id="s-agent2">
+<div class="slide-inner">
+  <div class="tag">2-3 &mdash; 제어가 품질을 결정한다</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px;">
+    <div class="case" style="padding:24px;">
+      <div class="case-tag">Before / After</div>
+      <h4 style="font-size:20px;">강의 생성기</h4>
+      <p style="margin-top:8px;">이 강의 자체가 에이전트로 만든 사례</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:12px;background:var(--danger-dim);border:1px solid rgba(248,113,113,0.2);border-radius:10px;">
+          <span style="font-size:12px;font-weight:700;color:var(--danger);">기준서 없이</span>
+          <span style="font-size:14px;color:var(--text2);margin-left:8px;">뻔한 구성, 청중 맥락 무시</span>
+        </div>
+        <div style="padding:12px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.2);border-radius:10px;">
+          <span style="font-size:12px;font-weight:700;color:var(--accent);">기준서 넣고</span>
+          <span style="font-size:14px;color:var(--text2);margin-left:8px;">청중 맞춤, 사례 중심, 시간 배분 제어</span>
+        </div>
+      </div>
+    </div>
+    <div class="case" style="padding:24px;">
+      <div class="case-tag">Live Demo</div>
+      <h4 style="font-size:20px;">Remote Control</h4>
+      <p style="margin-top:8px;">폰에서 시키면 PC가 자율 실행</p>
+      <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+          폰: "이 페이지 만들어서 배포해" &#8594; PC: 코드 &#8594; 빌드 &#8594; 배포<br/>
+          <strong class="green">&#8594; AI가 알아서 진행. 사람은 결과만 확인.</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:20px;">
+    <h3>핵심</h3>
+    <div class="formula">
+      <span class="f-good">자율 실행 + 규칙으로 제어 + 사람 확인 = 좋은 결과물</span>
+      <span class="f-vs">vs</span>
+      <span class="f-bad">자율 실행 + 규칙도 확인도 없음 = 엉뚱한 결과물</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 3단계 실전 적용 -->
+<!-- ============================== -->
+<div class="slide" id="s-methods1">
+<div class="slide-inner">
+  <div class="tag">2-4 &mdash; 세팅 &#8594; 지시 &#8594; 확인 실전</div>
+  <h2>3단계, 실제로<br/><span class="green">이렇게 합니다</span></h2>
+  <p class="subtitle">3단계 모두, 내가 하는 건 "말하기"와 "확인"뿐입니다.</p>
+  <div class="method-list" style="margin-top:24px;">
+    <div class="method" style="border-left:3px solid var(--accent);">
+      <div class="method-n" style="background:var(--accent);">1</div>
+      <div>
+        <h4 style="color:var(--accent);">세팅: 규칙 파일 만들기</h4>
+        <p style="margin-top:4px;">
+          Antigravity한테 시킨다: <code style="padding:3px 8px;background:var(--surface);border-radius:4px;font-size:13px;">"나는 카페를 운영해. 작업용 규칙 파일 만들어줘"</code><br/>
+          <span style="color:var(--text3);font-size:14px;">AI가 검증된 규칙 검색 &#8594; 내 상황에 정리 &#8594; 생성. 쓰면서 "이건 하지 마" 추가하면 점점 완성</span>
+        </p>
+      </div>
+    </div>
+    <div class="method" style="border-left:3px solid var(--blue);">
+      <div class="method-n" style="background:var(--blue);">2</div>
+      <div>
+        <h4 style="color:var(--blue);">지시: 기준 먼저 + 쪼개서 시킨다</h4>
+        <p style="margin-top:4px;">
+          <span style="color:var(--danger);">[before]</span> "블로그 글 써줘" &#8594; 뻔한 글 &nbsp;
+          <span style="color:var(--accent);">[after]</span> "기준 10가지 먼저" &#8594; 확인 &#8594; "이 기준으로 써줘"<br/>
+          <span style="color:var(--danger);">[before]</span> "사업계획서 만들어줘" &#8594; 뭉뚱그림 &nbsp;
+          <span style="color:var(--accent);">[after]</span> "목차만 먼저" &#8594; 확인 &#8594; "1장 써줘" &#8594; 확인
+        </p>
+      </div>
+    </div>
+    <div class="method" style="border-left:3px solid var(--yellow);">
+      <div class="method-n" style="background:var(--yellow);">3</div>
+      <div>
+        <h4 style="color:var(--yellow);">확인: AI한테 스스로 검토시킨다</h4>
+        <p style="margin-top:4px;">
+          <code style="padding:3px 8px;background:var(--surface);border-radius:4px;font-size:13px;">"방금 만든 거 기준으로 검토해봐. 몇 점인지, 뭐가 빠졌는지."</code><br/>
+          <span style="color:var(--text3);font-size:14px;">만든 놈이 검토도 하는 게 핵심. 한번 더 거르는 것만으로 품질 UP</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 3단계 요약 + 자료 배포 -->
+<!-- ============================== -->
+<div class="slide" id="s-methods2">
+<div class="slide-inner">
+  <div class="tag">2-4 &mdash; 3단계 요약 + 자료 배포</div>
+  <h2>3단계 총정리</h2>
+  <table class="tbl" style="margin-top:28px;">
+    <tr><th>단계</th><th>원인 (왜 별로였나)</th><th>해결</th><th>내가 하는 말</th></tr>
+    <tr><td style="color:var(--accent);font-weight:700;">세팅</td><td>프롬프트만 줬다</td><td>규칙 파일 만들기</td><td>"내 상황에 맞는 규칙 만들어줘"</td></tr>
+    <tr><td style="color:var(--blue);font-weight:700;">지시</td><td>기준 없이, 한번에</td><td>기준 먼저 + 단계별</td><td>"기준 만들어줘" &#8594; 확인 &#8594; "다음"</td></tr>
+    <tr><td style="color:var(--yellow);font-weight:700;">확인</td><td>검토 안 했다</td><td>AI 자체 검토</td><td>"방금 만든 거 기준으로 검토해봐"</td></tr>
+  </table>
+
+  <div style="margin-top:24px;padding:18px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;">
+    <p style="font-size:18px;font-weight:700;color:var(--text);">3단계 모두, 내가 하는 건 <span class="green">"말하기"</span>와 <span style="color:var(--blue);">"확인"</span>뿐이다</p>
+    <p style="font-size:15px;color:var(--text3);margin-top:6px;">찾기, 정리, 만들기, 검토는 AI가 한다</p>
+  </div>
+
+  <div class="pbox" style="margin-top:36px;border-color:var(--accent);background:var(--accent-dim);">
+    <h3 style="color:var(--accent);">자료 배포 (오늘 실습용)</h3>
+    <p style="font-size:17px;color:var(--text2);line-height:2;">
+      <strong style="color:var(--text);">기준문서_대출계산기.md</strong> &#8594; 계산 공식·디자인·UX 기준 포함<br/>
+      <strong style="color:var(--text);">기준문서_견적서생성기.md</strong> &#8594; 비즈니스 로직·레이아웃·기술스택 기준 포함<br/>
+      <span style="font-size:14px;color:var(--text3);">2차 실습에서 이 파일 중 하나를 Antigravity에 첨부하면 됩니다.</span>
+    </p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 11: 주제 정하기 -->
+<!-- ============================== -->
+<div class="slide" id="s-topic">
+<div class="slide-inner">
+  <div class="tag">2-5 &mdash; 내가 만들 것 정하기</div>
+  <h2>"내가 만들 것"<br/>하나만 정하세요</h2>
+  <p class="subtitle">배포된 질문지를 기반으로 자기 주제 1가지를 정합니다. 못 정하면 공통 주제로.</p>
+
+  <h3 style="margin-top:36px;">공통 주제 2가지</h3>
+  <div class="topic-grid">
+    <div class="topic">
+      <div class="topic-lv easy">A &middot; Easy</div>
+      <h4>대출이자 / 적금 계산기</h4>
+      <p>누구나 쓸 수 있는 실용 도구. 만든 후 실제로 쓸 수 있음.</p>
+    </div>
+    <div class="topic">
+      <div class="topic-lv mid">B &middot; Medium</div>
+      <h4>견적서 자동 생성기</h4>
+      <p>프리랜서/자영업자용. 항목 입력하면 견적서 생성.</p>
+    </div>
+  </div>
+  <p style="text-align:center;color:var(--text3);font-size:14px;margin-top:16px;">자기 주제 있는 분은 자유롭게 진행</p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: Before vs After (2부 실습 근거 1/2) -->
+<!-- ============================== -->
+<div class="slide" id="s-why">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 왜 이런 실습이 가능한가</div>
+  <h2>AI가 바뀌니까<br/><span class="green">작업 방식</span>이 바뀌었다</h2>
+
+  <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:28px;">
+    <div style="background:var(--danger-dim);border:2px solid rgba(248,113,113,0.3);border-radius:16px;padding:36px;">
+      <h4 style="color:var(--danger);font-size:26px;margin-bottom:24px;">2025년 6월</h4>
+      <div style="font-size:24px;color:var(--text2);line-height:2.2;">
+        1턴: "레이아웃만 만들어"<br/>
+        2턴: "기능 추가해"<br/>
+        3턴: "디자인 다듬어"
+      </div>
+      <p style="font-size:20px;color:var(--danger);margin-top:20px;font-weight:700;">3번 나눠서 시킴</p>
+    </div>
+    <div style="background:var(--accent-dim);border:2px solid rgba(74,222,128,0.3);border-radius:16px;padding:36px;">
+      <h4 style="color:var(--accent);font-size:26px;margin-bottom:24px;">2026년 3월 (지금)</h4>
+      <div style="font-size:24px;color:var(--text2);line-height:2.2;">
+        기준서 1장 첨부<br/>
+        "시작해줘"<br/>
+        AI가 알아서 끝냄
+      </div>
+      <p style="font-size:20px;color:var(--accent);margin-top:20px;font-weight:700;">1번에 끝</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 3가지 변화 (2부 실습 근거 2/2) -->
+<!-- ============================== -->
+<div class="slide" id="s-why2">
+<div class="slide-inner" style="display:flex;flex-direction:column;align-items:center;">
+  <div class="tag">2-6 &mdash; 3가지가 동시에 바뀌었다</div>
+  <h2 style="text-align:center;">이것이 <span class="green">오늘 실습</span>의 근거</h2>
+
+  <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;width:100%;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:22px;color:var(--text3);margin-bottom:12px;">읽는 양</div>
+      <div style="font-size:42px;font-weight:900;color:var(--accent);">8~78x</div>
+      <p style="font-size:20px;color:var(--text2);margin-top:16px;line-height:1.5;">128K &#8594; <strong>1M+</strong></p>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:22px;color:var(--text3);margin-bottom:12px;">도구 사용</div>
+      <div style="font-size:42px;font-weight:900;color:var(--blue);">+</div>
+      <p style="font-size:20px;color:var(--text2);margin-top:16px;line-height:1.5;">웹 검색, 파일 생성<br/>테스트까지 자율</p>
+    </div>
+    <div style="background:var(--accent-dim);border:2px solid var(--accent);border-radius:16px;padding:32px;text-align:center;">
+      <div style="font-size:22px;color:var(--text3);margin-bottom:12px;">작업 방식</div>
+      <div style="font-size:36px;font-weight:900;color:var(--accent);">규칙</div>
+      <p style="font-size:20px;color:var(--text);margin-top:16px;line-height:1.5;">나눠서 시키기 &#8594;<br/><strong>규칙 주고 맡기기</strong></p>
+    </div>
+  </div>
+
+  <p style="font-size:28px;font-weight:900;color:var(--text);text-align:center;margin-top:48px;">
+    오늘 실습 = <span class="green">"기준서 1장으로 앱 완성"</span>
+  </p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 12: 실습 도구 설명 -->
+<!-- ============================== -->
+<div class="slide" id="s-tools">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 실습 도구 소개</div>
+  <h2>오늘 쓸 도구 3가지</h2>
+  <p class="subtitle">코딩 몰라도 됩니다. 이 3가지가 알아서 해줍니다.</p>
+
+  <div class="card-grid" style="grid-template-columns:repeat(3,1fr);margin-top:32px;">
+    <div class="card card-top" style="border-top-color:var(--blue);">
+      <div style="font-size:13px;font-weight:700;color:var(--blue);letter-spacing:1px;margin-bottom:12px;">GOOGLE</div>
+      <h4 style="font-size:22px;margin-bottom:12px;">Antigravity</h4>
+      <p style="font-size:15px;line-height:1.7;">
+        Google이 만든 <strong class="green">무료 에이전트 IDE</strong>.<br/>
+        구글 계정만 있으면 바로 사용.<br/>
+        채팅으로 시키면 코드 생성 &#8594; 미리보기 &#8594; 배포까지 <strong>자율 실행</strong>.<br/>
+        <span style="color:var(--text3);font-size:13px;">코딩 지식 필요 없음. 말로 시키면 됨.</span>
+      </p>
+    </div>
+    <div class="card card-top">
+      <div style="font-size:13px;font-weight:700;color:var(--text3);letter-spacing:1px;margin-bottom:12px;">VERCEL</div>
+      <h4 style="font-size:22px;margin-bottom:12px;">Vercel</h4>
+      <p style="font-size:15px;line-height:1.7;">
+        만든 웹사이트를 <strong class="green">인터넷에 올려주는 서비스</strong>.<br/>
+        구글 계정으로 가입, 무료.<br/>
+        Antigravity가 만든 결과물을 Vercel이 세상에 공개.<br/>
+        <span style="color:var(--text3);font-size:13px;">내 결과물에 URL이 생기고, 누구나 접속 가능.</span>
+      </p>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--accent);">
+      <div style="font-size:13px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:12px;">WORKFLOW</div>
+      <h4 style="font-size:22px;margin-bottom:12px;">/turbo-all</h4>
+      <p style="font-size:15px;line-height:1.7;">
+        배포 과정을 <strong class="green">자동화한 명령어</strong>.<br/>
+        원래: 빌드 &#8594; 설정 &#8594; 확인 &#8594; 배포 (4단계)<br/>
+        turbo-all: <strong>한 번에 끝</strong>. 중간 확인 0.<br/>
+        <span style="color:var(--text3);font-size:13px;">이것이 에이전트식 제어 = 사전에 규칙 세팅.</span>
+      </p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="slide" id="s-flow">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 도구 흐름</div>
+  <h2>3가지 도구가 이렇게 연결됩니다</h2>
+  <div class="keybox" style="margin-top:48px;">
+    <h3>전체 흐름</h3>
+    <p style="font-size:24px;line-height:2;">
+      <strong>Antigravity</strong><span class="dim"> (만든다)</span>
+      &nbsp;&#8594;&nbsp;
+      <strong class="green">/turbo-all</strong><span class="dim"> (자동 배포)</span>
+      &nbsp;&#8594;&nbsp;
+      <strong>Vercel</strong><span class="dim"> (세상에 공개)</span>
+    </p>
+    <p style="font-size:18px;color:var(--text3);margin-top:16px;">코드 생성부터 배포까지 사람이 손 안 대도 끝남 = 에이전트</p>
+  </div>
+  <div style="text-align:center;margin-top:48px;">
+    <p style="font-size:20px;font-weight:700;color:var(--text2);">말로 시키면 <strong class="green">만들고</strong>, 명령어 하나로 <strong class="green">배포</strong>하고, URL로 <strong class="green">공유</strong>한다.</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 실습 준비 -->
+<!-- ============================== -->
+<div class="slide" id="s-setup">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 같이 세팅</div>
+  <h2>지금 같이 세팅합니다</h2>
+  <p class="subtitle">화면 보며 따라오세요. 3단계면 끝.</p>
+
+  <div class="pbox" style="margin-top:28px;">
+    <h3>같이 따라하기</h3>
+    <div class="pstep"><div class="pstep-time">Step 1</div><div><strong>Antigravity 설치 확인</strong><p>오프닝에서 다운로드 시작했으면 이미 설치 완료. 아직이면 지금 바로.</p></div></div>
+    <div class="pstep"><div class="pstep-time">Step 2</div><div><strong>Vercel 로그인</strong><p>vercel.com &#8594; <strong class="green">Continue with Google</strong> &#8594; 구글 계정 선택 &#8594; 끝.</p></div></div>
+    <div class="pstep"><div class="pstep-time">Step 3</div><div><strong>배포 자료 받기</strong>
+      <p style="margin-bottom:10px;">아래 버튼을 눌러 기준 문서를 다운로드하세요.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <a href="files/기준문서_대출계산기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">&#8595; 기준서_대출계산기</a>
+        <a href="files/기준문서_견적서생성기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">&#8595; 기준서_견적서생성기</a>
+        <a href="files/기준서_범용_웹앱_템플릿_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--blue);color:#000;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">&#8595; 기준서_범용 (자유주제)</a>
+        <a href="files/프롬프트_대출계산기.md" download style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;text-decoration:none;font-size:13px;">&#8595; 프롬프트_대출계산기</a>
+        <a href="files/프롬프트_견적서생성기.md" download style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;text-decoration:none;font-size:13px;">&#8595; 프롬프트_견적서생성기</a>
+      </div>
+    </div></div>
+  </div>
+
+  <div style="margin-top:28px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;">
+    <h4 style="margin-bottom:12px;">/turbo-all 이 실제로 하는 일</h4>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <code style="background:var(--surface2);border:1px solid var(--border);padding:6px 16px;border-radius:6px;color:var(--accent);font-family:monospace;font-size:14px;">npx vercel --yes --prod</code>
+      <span style="color:var(--text3);font-size:14px;">&#8594;</span>
+      <span style="font-size:14px;color:var(--text2);">모든 질문 자동 응답</span>
+      <span style="color:var(--text3);font-size:14px;">&#8594;</span>
+      <span style="font-size:14px;color:var(--text2);">빌드</span>
+      <span style="color:var(--text3);font-size:14px;">&#8594;</span>
+      <span style="font-size:14px;color:var(--text2);">배포</span>
+      <span style="color:var(--text3);font-size:14px;">&#8594;</span>
+      <span style="font-size:14px;color:var(--accent);font-weight:700;">URL 반환</span>
+    </div>
+    <p style="font-size:13px;color:var(--text3);margin-top:10px;">
+      원래 4단계를 거쳐야 하는 배포를 명령어 하나로 자동화.<br/>
+      <strong class="green">사전에 규칙(--yes --prod)을 세팅</strong>해서 에이전트가 안전하게 자율 실행하도록 만든 것.
+    </p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 13: 실습 본격 -->
+<!-- ============================== -->
+<div class="slide" id="s-practice">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 실습 본격</div>
+  <h2>"시작" 한번 누르면<br/>끝까지 자율 실행</h2>
+  <p class="subtitle">이것이 에이전트입니다. 규칙 파일 유무에 따른 결과 차이를 직접 체험합니다.</p>
+
+  <div class="vs-grid" style="margin-top:32px;">
+    <div class="vs-col">
+      <div class="vs-tag old">1차 실행</div>
+      <div class="vs-head">기준 파일 <span class="red">없이</span></div>
+      <ul class="vs-list">
+        <li>Antigravity에서 새 프로젝트 생성</li>
+        <li><code style="font-size:13px;background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">"대출이자 계산기 만들어줘"</code></li>
+        <li>/turbo-all 로 배포 &#8594; URL 받기</li>
+        <li>결과물 확인 &#8594; <strong>뭐가 아쉬운지 메모</strong></li>
+      </ul>
+    </div>
+    <div class="vs-mid">VS</div>
+    <div class="vs-col good">
+      <div class="vs-tag new">2차 실행</div>
+      <div class="vs-head">기준 파일 <span class="green">넣고</span></div>
+      <ul class="vs-list">
+        <li><strong>기준문서_대출계산기.md</strong> 첨부</li>
+        <li>같은 명령 그대로 실행</li>
+        <li>/turbo-all 로 배포 &#8594; 1차와 비교</li>
+        <li><strong>파일 하나의 차이</strong>가 결과를 바꾼다</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="slide" id="s-timeline">
+<div class="slide-inner">
+  <div class="tag">2-6 &mdash; 실습 타임라인</div>
+  <h2>실습 진행 순서</h2>
+  <p class="subtitle">같은 주제를 2번 돌리고, 차이를 직접 체감합니다.</p>
+
+  <div class="pbox" style="margin-top:36px;">
+    <h3>타임라인</h3>
+    <div class="pstep"><div class="pstep-num">1</div><div><strong style="font-size:20px;">1차: 기준 없이 실행</strong><p style="font-size:17px;">"대출이자 계산기 만들어줘" &#8594; /turbo-all &#8594; URL 메모 &#8594; 아쉬운 점 체크</p></div></div>
+    <div class="pstep"><div class="pstep-num">2</div><div><strong style="font-size:20px;">2차: 기준 넣고 실행</strong><p style="font-size:17px;">기준문서_대출계산기.md 첨부 + 같은 명령 &#8594; /turbo-all &#8594; 1차 URL과 나란히 비교</p></div></div>
+  </div>
+
+  <div style="text-align:center;margin-top:48px;">
+    <div style="font-size:24px;font-weight:900;color:var(--accent);margin-bottom:12px;">자율 실행은 같은데,</div>
+    <div style="font-size:28px;font-weight:900;color:var(--text);">제어(규칙 파일)를 어떻게 주느냐에 따라<br/>결과가 달라진다</div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE: 실습 결과 공유 -->
+<!-- ============================== -->
+<div class="slide" id="s-share">
+<div class="slide-inner">
+  <div class="tag">실습 마무리</div>
+  <h2>결과 공유</h2>
+  <p class="subtitle">1차 vs 2차, 뭐가 달랐나요?</p>
+
+  <div class="card-grid" style="margin-top:32px;grid-template-columns:repeat(3,1fr);">
+    <div class="card card-top">
+      <div class="card-icon">&#x1F4F1;</div>
+      <h4>배포 URL 공유</h4>
+      <p>만든 결과물의 Vercel URL을 채팅에 공유해 주세요.</p>
+    </div>
+    <div class="card card-top">
+      <div class="card-icon">&#x1F4AC;</div>
+      <h4>1차 vs 2차 차이</h4>
+      <p>규칙 파일 넣기 전/후에 어떤 차이가 있었나요?</p>
+    </div>
+    <div class="card card-top">
+      <div class="card-icon">&#x1F4A1;</div>
+      <h4>깨달은 점</h4>
+      <p>"맥락을 주니까 확실히 달랐다" 같은 한 줄 소감.</p>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:36px;">
+    <h3>오늘의 체험 정리</h3>
+    <div class="formula">
+      <span class="f-bad">프롬프트만 = 아쉬운 결과</span>
+      <span class="f-vs">vs</span>
+      <span class="f-good">재료 + 규칙 + 도구 = 진짜 결과물</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- SLIDE 12: 마무리 -->
+<!-- ============================== -->
+<div class="slide" id="s-security">
+<div class="slide-inner">
+  <div class="tag">Wrap-up &mdash; 위험 경고</div>
+  <h2>자율 실행은 편하지만<br/><span class="red">제어 없이 쓰면 위험하다</span></h2>
+
+  <div class="danger-box" style="margin-top:36px;">
+    <h3>자율 실행의 위험</h3>
+    <ul class="danger-list">
+      <li>에이전트가 원치 않는 파일을 수정하거나 삭제할 수 있음</li>
+      <li>API 키, 비밀번호 등 민감 정보가 코드에 노출될 수 있음</li>
+      <li>의도치 않은 외부 서비스 호출이나 결제 발생 가능</li>
+    </ul>
+  </div>
+
+  <h3 style="margin-top:48px;">구체적 제어 방법</h3>
+  <div class="card-grid" style="margin-top:20px;">
+    <div class="card card-top"><div class="card-icon">&#x1F4C1;</div><h4>폴더 제한</h4><p>특정 폴더 안에서만 수정 허용. 다른 곳은 못 건드리게.</p></div>
+    <div class="card card-top"><div class="card-icon">&#x1F4DC;</div><h4>규칙 파일</h4><p>하면 안 되는 것 명시. 삭제 금지, 행동 범위 설정.</p></div>
+    <div class="card card-top"><div class="card-icon">&#x2705;</div><h4>단계별 확인</h4><p>중요 작업은 실행 전 확인 단계 삽입.</p></div>
+    <div class="card card-top"><div class="card-icon">&#x1F512;</div><h4>API 키 보안</h4><p>절대 코드에 직접 넣지 않기. 환경변수 관리.</p></div>
+  </div>
+</div>
+</div>
+
+<div class="slide" id="s-closing">
+<div class="slide-inner">
+  <div class="tag">Wrap-up &mdash; 마무리</div>
+  <h2>2주차 예고 + 마무리</h2>
+
+  <div class="pbox" style="margin-top:36px;border-color:var(--border);background:var(--surface);">
+    <h3 style="color:var(--text);">2주차 예고: 바이브코딩 실습</h3>
+    <p style="font-size:18px;color:var(--text2);line-height:1.8;margin-top:12px;">
+      오늘 정한 "내가 만들 것"을 Antigravity로 본격 구현합니다.<br/>
+      오늘 배운 규칙 파일 + 질문지를 가지고 오세요.
+    </p>
+  </div>
+
+  <div style="text-align:center;margin-top:64px;">
+    <div style="font-size:32px;font-weight:900;color:var(--accent);margin-bottom:16px;">AI를 채팅창에서 꺼내라</div>
+    <p style="font-size:20px;color:var(--text2);line-height:1.6;">재료와 규칙을 줘라. 제어를 잊지 마라.</p>
+  </div>
+</div>
+</div>
+
+</div><!-- /week1 -->
+
+<!-- ============================================================ -->
+<!-- WEEK 2 SECTION -->
+<!-- ============================================================ -->
+<div class="week-section" id="week2">
+
+<!-- ============================== -->
+<!-- W2 SLIDE 1: TITLE -->
+<!-- ============================== -->
+<div class="slide" id="w2-title">
+<div class="slide-inner" style="text-align:center;display:flex;flex-direction:column;align-items:center;">
+  <div class="week-badge w2">2주차 &mdash; 2026.03.11</div>
+  <div class="tag">바이브코딩 워크숍</div>
+  <h1>내가 쓸 도구,<br/><span class="green">내가 만든다</span></h1>
+  <p class="subtitle" style="text-align:center;margin:0 auto;">
+    코딩 몰라도 됩니다.<br/>
+    <strong class="green">내 문제를 아는 사람</strong>이 이깁니다.
+  </p>
+
+  <a href="https://antigravity.google" target="_blank" rel="noopener"
+     style="display:inline-block;margin-top:28px;padding:14px 32px;background:var(--accent);color:var(--bg);font-size:16px;font-weight:700;border-radius:8px;text-decoration:none;letter-spacing:0.5px;transition:opacity 0.2s;"
+     onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+    Antigravity 다운로드 &rarr;
+  </a>
+
+  <div style="margin-top:40px;width:100%;max-width:800px;">
+    <div class="phase-bar">
+      <div class="phase-item">
+        <div class="ph-num">1~3</div>
+        <div class="ph-name">소개+현황+방안</div>
+        <div class="ph-time">20분</div>
+      </div>
+      <div class="phase-item">
+        <div class="ph-num">4</div>
+        <div class="ph-name">실습 준비</div>
+        <div class="ph-time">20분</div>
+      </div>
+      <div class="phase-item">
+        <div class="ph-num">5</div>
+        <div class="ph-name">자유 제작</div>
+        <div class="ph-time">15분</div>
+      </div>
+      <div class="phase-item">
+        <div class="ph-num">6</div>
+        <div class="ph-name">기준서 제작</div>
+        <div class="ph-time">35분</div>
+      </div>
+      <div class="phase-item active-phase">
+        <div class="ph-num">7</div>
+        <div class="ph-name">기준서 만드는 법</div>
+        <div class="ph-time">20분</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:16px 28px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.3);border-radius:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;">
+    <span style="font-size:16px;color:var(--text3);">강의자료</span>
+    <span style="font-size:16px;font-weight:700;color:var(--accent);">claude-remote-control-guide-nine.vercel.app</span>
+    <span style="color:var(--text3);">|</span>
+    <span style="font-size:16px;color:var(--text3);">Antigravity: <strong style="color:var(--blue);">antigravity.google</strong></span>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 2: 바이브코딩 소개 (Step 1~3: 20분) -->
+<!-- ============================== -->
+<div class="slide" id="w2-intro">
+<div class="slide-inner">
+  <div class="tag">Step 1 &mdash; 바이브코딩 소개</div>
+  <h2>바이브코딩이란?</h2>
+  <p class="subtitle">코드를 직접 짜는 게 아니라, <strong class="green">설명하면 AI가 만들어줍니다.</strong></p>
+
+  <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;">
+    <div class="story-block">
+      <div class="story-num">1</div>
+      <h4>Anthropic 해커톤 — 13,000명 참가, 1위와 3위가 비개발자</h4>
+      <p>Claude를 만든 Anthropic이 개최. 13,000명 지원, 500명 선발. 평가 기준: 기술 혁신성, 작동하는 프로토타입, <strong class="green">실제 문제 해결</strong>.</p>
+      <table class="tbl tbl-sm" style="margin:10px 0 0;">
+        <tr><th>순위</th><th>직업</th><th>만든 것</th></tr>
+        <tr><td><strong class="green">1위</strong></td><td><strong class="green">변호사</strong></td><td><strong>CrossBeam</strong> — 건축 허가 법 조항 자동 분석</td></tr>
+        <tr><td>2위</td><td>개발자</td><td><strong>Elisa</strong> — 아이용 블록 코딩 환경</td></tr>
+        <tr><td><strong class="green">3위</strong></td><td><strong class="green">심장내과 전문의</strong></td><td><strong>postvisit.ai</strong> — 진료 후 환자 맞춤 설명</td></tr>
+        <tr><td>특별상</td><td>음악가 겸 개발자</td><td><strong>Conductr</strong> — MIDI로 AI 밴드 실시간 지휘</td></tr>
+        <tr><td>특별상</td><td><strong class="green">도로 기술자 (우간다)</strong></td><td><strong>TARA</strong> — 블랙박스 영상→도로 투자 보고서</td></tr>
+      </table>
+      <p style="margin-top:8px;"><strong class="green">1위 변호사, 3위 의사. 자기 분야 문제를 정확히 아는 사람이 개발자를 이겼습니다.</strong></p>
+    </div>
+    <div class="story-block">
+      <div class="story-num">2</div>
+      <h4>현실 — "둘째 날 문제"</h4>
+      <p>같은 기사에서: <em>"AI가 1분 만에 만든 앱은 첫째 날에는 멋지다. 문제는 둘째 날 — 유지보수, 보안, 예외 처리."</em> <em>"그 도구를 10만 명이 쓰는 서비스로 키울 수 있는가는 전혀 다른 질문이다."</em></p>
+    </div>
+    <div class="story-block">
+      <div class="story-num">3</div>
+      <h4>그래서 바이브코딩으로 가장 좋은 건?</h4>
+      <p><strong class="green">나한테 필요한 도구를 바로바로 만들어 쓰는 것.</strong> 회사에서, 개인이, 필요한 걸 직접 만들어 쓰기에 가장 좋습니다.<br/><span style="font-size:14px;color:var(--text3);">상용 서비스도 가능합니다 — 단, "잘 시키는 법"이 필요합니다.</span></p>
+    </div>
+    <div class="story-block">
+      <div class="story-num">4</div>
+      <h4>하지만 — "잘 시키는 법"이 있습니다</h4>
+      <p>"만들어줘" 한마디로도 뭔가 나옵니다. 근데 <strong style="color:var(--yellow);">쓸 만한 것이 나오려면 다릅니다.</strong> 오늘 그 차이를 직접 체험합니다.</p>
+    </div>
+  </div>
+  <p style="font-size:14px;color:var(--text3);margin-top:12px;">출처: 서울경제 2026.02, Moony01 Studio, GeekNews</p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 3: 도구 비교 + 현황 + 해결방안 (Step 2~3) -->
+<!-- ============================== -->
+<div class="slide" id="w2-status">
+<div class="slide-inner">
+  <div class="tag">Step 2~3 &mdash; 현황 + 해결방안</div>
+  <h2>바이브코딩 도구들<br/><span class="green">어디까지 되고, 뭐가 부족한가</span></h2>
+
+  <div style="margin-top:28px;">
+    <table class="tbl">
+      <tr><th style="width:22%;">비교</th><th style="width:26%;">Antigravity (Google)</th><th style="width:26%;">Claude Code</th><th style="width:26%;">Codex (OpenAI)</th></tr>
+      <tr><td>가격</td><td><strong class="green">무료</strong></td><td>유료 ($20/월~)</td><td>유료 ($20/월~)</td></tr>
+      <tr><td>설치</td><td><strong class="green">데스크탑 앱</strong></td><td>터미널 설치</td><td>터미널 설치</td></tr>
+      <tr><td>난이도</td><td><strong class="green">초보 가능</strong></td><td>중급 이상</td><td>중급 이상</td></tr>
+      <tr><td>배포</td><td><strong class="green">자동 (URL 제공)</strong></td><td>수동 설정</td><td>수동 설정</td></tr>
+      <tr><td>AI 모델</td><td>Gemini 3 Pro/Flash</td><td>Claude Sonnet/Opus</td><td>GPT-4o/o3</td></tr>
+    </table>
+    <p style="font-size:16px;color:var(--text3);margin-top:8px;">오늘 실습 도구: <strong style="color:var(--accent);">Antigravity</strong> (무료, 데스크탑 앱, 초보 가능)</p>
+  </div>
+
+  <div class="keybox" style="margin-top:28px;">
+    <h3>현재 한계 — 솔직하게</h3>
+    <table class="tbl tbl-sm" style="margin:12px 0 0;">
+      <tr><th style="width:40%;">잘 되는 것</th><th>아직 부족한 것</th></tr>
+      <tr><td>"만들어줘" → 뭔가 나옴</td><td><strong style="color:var(--danger);">쓸 만한 것이 나오진 않음</strong></td></tr>
+      <tr><td>코드 생성 속도</td><td><strong style="color:var(--danger);">의도 파악 정확도</strong></td></tr>
+      <tr><td>기본 UI/UX</td><td><strong style="color:var(--danger);">세밀한 비즈니스 로직</strong></td></tr>
+      <tr><td>단순 CRUD</td><td><strong style="color:var(--danger);">복잡한 계산/검증</strong></td></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:24px;padding:20px 24px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.2);border-radius:12px;">
+    <h3 style="color:var(--accent);margin-bottom:12px;">내가 생각하는 해결방안 3가지</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="background:var(--accent);color:#000;font-weight:900;padding:4px 10px;border-radius:6px;font-size:16px;flex-shrink:0;">1</span>
+        <p style="font-size:18px;line-height:1.7;"><strong>기준 문서</strong> — AI가 스스로 생각하게 만드는 문서를 준다. 기능 목록이 아니라, 풀어야 할 문제를 준다.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="background:var(--blue);color:#000;font-weight:900;padding:4px 10px;border-radius:6px;font-size:16px;flex-shrink:0;">2</span>
+        <p style="font-size:18px;line-height:1.7;"><strong>환경 세팅</strong> — 권한 자동 승인, 프레임워크 제한 등. AI가 삽질하지 않게 환경을 잡아준다.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="background:var(--yellow);color:#000;font-weight:900;padding:4px 10px;border-radius:6px;font-size:16px;flex-shrink:0;">3</span>
+        <p style="font-size:18px;line-height:1.7;"><strong>대화 방법</strong> — "만들어줘" vs "이 시나리오들을 해결해줘"는 결과가 다르다.</p>
+      </div>
+    </div>
+    <p style="font-size:18px;color:var(--text2);margin-top:16px;"><strong style="color:var(--accent);">오늘 이 3가지를 직접 체험합니다.</strong> 이론이 아니라 결과로 느끼는 시간.</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 3.5: 대출계산기 3단계 비교 -->
+<!-- ============================== -->
+<div class="slide" id="w2-loan-compare">
+<div class="slide-inner">
+  <div class="tag">Step 3 &mdash; 같은 앱, 세 가지 결과</div>
+  <h2>"대출계산기 만들어줘"<br/><span class="green">방법에 따라 이렇게 다릅니다</span></h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:24px;">
+
+    <!-- v1: 기준서 없이 -->
+    <div style="background:var(--surface);border:2px solid var(--danger);border-radius:14px;padding:20px;position:relative;">
+      <div style="position:absolute;top:-12px;left:16px;background:var(--danger);color:#fff;font-size:14px;font-weight:800;padding:3px 12px;border-radius:6px;">STEP 1</div>
+      <h4 style="margin-top:8px;color:var(--danger);">"만들어줘" 한마디</h4>
+      <p style="font-size:15px;color:var(--text3);margin-top:4px;">기준서 없이 바로 시킴</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+        <img src="files/loan-v1-1.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v1 입력"/>
+        <img src="files/loan-v1-2.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v1 결과"/>
+      </div>
+      <p style="font-size:14px;color:var(--text3);margin-top:8px;">소요: 1분</p>
+    </div>
+
+    <!-- v2: 대화로 개선 -->
+    <div style="background:var(--surface);border:2px solid var(--yellow);border-radius:14px;padding:20px;position:relative;">
+      <div style="position:absolute;top:-12px;left:16px;background:var(--yellow);color:#000;font-size:14px;font-weight:800;padding:3px 12px;border-radius:6px;">STEP 2</div>
+      <h4 style="margin-top:8px;color:var(--yellow);">AI랑 1시간 대화</h4>
+      <p style="font-size:15px;color:var(--text3);margin-top:4px;">v1을 대화로 계속 수정</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+        <img src="files/loan-v2-1.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v2 입력"/>
+        <img src="files/loan-v2-2.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v2 결과"/>
+      </div>
+      <p style="font-size:15px;color:var(--text2);margin-top:8px;line-height:1.6;">
+        디자인은 훨씬 좋아짐<br/>
+        <strong style="color:var(--yellow);">하지만 바뀐 건 겉모습뿐</strong>
+      </p>
+      <p style="font-size:14px;color:var(--text3);margin-top:4px;">소요: 1시간</p>
+    </div>
+
+    <!-- v5: 기준서 한 번에 -->
+    <div style="background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:20px;position:relative;">
+      <div style="position:absolute;top:-12px;left:16px;background:var(--accent);color:#000;font-size:14px;font-weight:800;padding:3px 12px;border-radius:6px;">STEP 3</div>
+      <h4 style="margin-top:8px;color:var(--accent);">기준서 한 장</h4>
+      <p style="font-size:15px;color:var(--text3);margin-top:4px;">기준서 복붙 한 번에 완성</p>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+        <img src="files/loan-v5-1.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v5 입력"/>
+        <img src="files/loan-v5-2.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="v5 결과"/>
+      </div>
+      <p style="font-size:14px;color:var(--text3);margin-top:8px;">소요: 3분</p>
+    </div>
+
+  </div>
+
+  <div class="keybox" style="margin-top:24px;">
+    <h3>비교 결과</h3>
+    <table class="tbl tbl-sm" style="margin:12px 0 0;">
+      <tr><th style="width:25%;">비교</th><th style="width:25%;">"만들어줘"</th><th style="width:25%;">1시간 대화</th><th style="width:25%;">기준서 한 장</th></tr>
+      <tr><td>소요 시간</td><td>1분</td><td style="color:var(--danger);">1시간</td><td style="color:var(--accent);">3분</td></tr>
+      <tr><td>디자인</td><td>기본</td><td style="color:var(--yellow);">좋음</td><td style="color:var(--accent);">좋음</td></tr>
+      <tr><td>계산 정확도</td><td style="color:var(--danger);">미검증</td><td style="color:var(--danger);">미검증</td><td style="color:var(--accent);">은행 기준</td></tr>
+      <tr><td>기능 수</td><td>3개</td><td>6개</td><td style="color:var(--accent);font-weight:700;">15개+</td></tr>
+      <tr><td>핵심 차이</td><td colspan="2" style="color:var(--text3);">대화 = 디자인만 개선</td><td style="color:var(--accent);font-weight:700;">기준 = 내용이 다름</td></tr>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 4-1: 실습 준비 - 폴더 선택 -->
+<!-- ============================== -->
+<div class="slide" id="w2-setup">
+<div class="slide-inner">
+  <div class="tag">Step 4 &mdash; 실습 준비 (1/5)</div>
+  <h2>Antigravity 세팅<br/><span class="green">5단계만 따라하세요</span></h2>
+  <p class="subtitle">Google이 만든 무료 AI 코딩 도구 (데스크탑 앱). 다운로드: <strong style="color:var(--blue);">antigravity.google</strong></p>
+
+  <div style="margin-top:36px;display:flex;gap:20px;align-items:flex-start;">
+    <span style="background:var(--accent);color:#000;font-weight:900;padding:10px 20px;border-radius:12px;font-size:28px;flex-shrink:0;">1</span>
+    <div style="flex:1;">
+      <h3 style="margin-bottom:12px;font-size:24px;">폴더 선택</h3>
+      <p style="font-size:20px;color:var(--text2);line-height:1.7;">Antigravity 실행 → <strong class="green">Open Folder</strong> 클릭 (또는 Ctrl+K+O)<br/>작업할 빈 폴더를 선택하세요.</p>
+      <img src="img/1.png" alt="Open Folder" style="margin-top:16px;max-width:100%;border-radius:8px;border:1px solid var(--border);"/>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 4-2: 화면 구성 확인 -->
+<!-- ============================== -->
+<div class="slide" id="w2-setup2">
+<div class="slide-inner">
+  <div class="tag">Step 4 &mdash; 실습 준비 (2/5)</div>
+  <h2>Antigravity 세팅</h2>
+
+  <div style="margin-top:36px;display:flex;gap:20px;align-items:flex-start;">
+    <span style="background:var(--accent);color:#000;font-weight:900;padding:10px 20px;border-radius:12px;font-size:28px;flex-shrink:0;">2</span>
+    <div style="flex:1;">
+      <h3 style="margin-bottom:12px;font-size:24px;">화면 구성 확인</h3>
+      <p style="font-size:20px;color:var(--text2);line-height:1.8;">
+        <strong>왼쪽</strong> = 파일 목록 (건드릴 필요 없음)<br/>
+        <strong>가운데</strong> = 문서 및 코드 확인 창<br/>
+        <strong style="color:var(--accent);">오른쪽</strong> = AI 대화창 (여기에 말하면 됩니다)
+      </p>
+      <img src="img/2.png" alt="화면 구성" style="margin-top:16px;max-width:100%;border-radius:8px;border:1px solid var(--border);"/>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 4-3: 설정 열기 -->
+<!-- ============================== -->
+<div class="slide" id="w2-setup3">
+<div class="slide-inner">
+  <div class="tag">Step 4 &mdash; 실습 준비 (3/5)</div>
+  <h2>Antigravity 세팅</h2>
+
+  <div style="margin-top:36px;display:flex;gap:20px;align-items:flex-start;">
+    <span style="background:var(--blue);color:#000;font-weight:900;padding:10px 20px;border-radius:12px;font-size:28px;flex-shrink:0;">3</span>
+    <div style="flex:1;">
+      <h3 style="margin-bottom:12px;font-size:24px;">설정 열기</h3>
+      <p style="font-size:20px;color:var(--text2);line-height:1.7;">상단 <strong class="green">톱니바퀴 아이콘</strong> → <strong>Open Antigravity User Settings</strong> (Ctrl+,)</p>
+      <img src="img/3.png" alt="설정 열기" style="margin-top:16px;max-width:100%;border-radius:8px;border:1px solid var(--border);"/>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 4-4: 권한 자동 승인 -->
+<!-- ============================== -->
+<div class="slide" id="w2-setup4">
+<div class="slide-inner">
+  <div class="tag">Step 4 &mdash; 실습 준비 (4/5)</div>
+  <h2>Antigravity 세팅</h2>
+
+  <div style="margin-top:36px;display:flex;gap:20px;align-items:flex-start;">
+    <span style="background:var(--blue);color:#000;font-weight:900;padding:10px 20px;border-radius:12px;font-size:28px;flex-shrink:0;">4</span>
+    <div style="flex:1;">
+      <h3 style="margin-bottom:12px;font-size:24px;">권한 자동 승인 <span style="color:var(--yellow);">(중요!)</span></h3>
+      <p style="font-size:20px;color:var(--text2);line-height:1.8;">
+        같은 설정 화면(Ctrl+,)에서:<br/>
+        <strong class="green">Terminal Command Auto Execution</strong> → <strong class="green">Always Proceed</strong> 선택<br/>
+        AI가 터미널 명령을 실행할 때 확인 없이 자동 진행됩니다.
+      </p>
+      <p style="font-size:20px;color:var(--yellow);font-weight:700;margin-top:16px;">이거 안 하면 팝업을 수십 번 눌러야 합니다.</p>
+      <img src="img/4.png" alt="권한 자동 승인" style="margin-top:16px;max-width:100%;border-radius:8px;border:1px solid var(--border);"/>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 4-5: 파일 접근 권한 -->
+<!-- ============================== -->
+<div class="slide" id="w2-setup5">
+<div class="slide-inner">
+  <div class="tag">Step 4 &mdash; 실습 준비 (5/5)</div>
+  <h2>Antigravity 세팅</h2>
+
+  <div style="margin-top:36px;display:flex;gap:20px;align-items:flex-start;">
+    <span style="background:var(--blue);color:#000;font-weight:900;padding:10px 20px;border-radius:12px;font-size:28px;flex-shrink:0;">5</span>
+    <div style="flex:1;">
+      <h3 style="margin-bottom:12px;font-size:24px;">파일 접근 권한</h3>
+      <p style="font-size:20px;color:var(--text2);line-height:1.8;">같은 설정 화면에서 아래로 스크롤:<br/>
+        - Agent Gitignore Access → <strong class="green">켜기</strong><br/>
+        - Agent Non-Workspace File Access → <strong class="green">켜기</strong>
+      </p>
+      <img src="img/5.png" alt="파일 접근 권한" style="margin-top:16px;max-width:100%;border-radius:8px;border:1px solid var(--border);"/>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:32px;">
+    <h3 style="font-size:22px;">전원 화면 확인 -- 여기서 넘어가지 않습니다</h3>
+    <p style="font-size:20px;color:var(--text2);line-height:1.8;margin-top:8px;">
+      5단계까지 완료한 사람은 손 들어주세요.<br/>
+      안 되는 사람은 옆 사람이 도와주기 / 강사 화면 같이 보기.
+    </p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 5: 자유 제작 -->
+<!-- ============================== -->
+<div class="slide" id="w2-free">
+<div class="slide-inner">
+  <div class="tag">Step 5 &mdash; 자유 제작</div>
+  <h2>기준서 없이<br/><span class="green">자유롭게 만들어보기</span></h2>
+  <p class="subtitle">각자 원하는 걸 AI한테 시켜보세요. 제한 없습니다.</p>
+
+  <div class="pbox" style="margin-top:36px;">
+    <h3>같이 시작합시다</h3>
+    <div class="pstep"><div class="pstep-num">1</div><div><strong>AI 채팅에 원하는 것 입력</strong><p>예시: "대출이자 계산기 만들어줘", "견적서 자동 생성기 만들어줘", 또는 본인이 평소 만들고 싶던 것.</p></div></div>
+    <div class="pstep"><div class="pstep-num">2</div><div><strong>팝업 대응</strong><p>Allow, Trust, 허용 — <strong class="green">뭐든 다 누르세요. 정상입니다.</strong> (설정 완료했으면 자동)</p></div></div>
+    <div class="pstep"><div class="pstep-num">3</div><div><strong>기다리기 + 결과 확인</strong><p>Preview가 뜬 사람: 결과를 살펴보세요. 디자인은? 기능은? 디테일은?<br/><strong style="color:var(--yellow);">이따가 비교할 거니까 기억해두세요.</strong></p></div></div>
+    <div class="pstep"><div class="pstep-num">4</div><div><strong>느낌 체크</strong><p>"뭔가 나오긴 했는데..." 어떤 부분이 아쉬운지 생각해보세요.</p></div></div>
+  </div>
+
+  <!-- AI 작업 상태 가이드 -->
+  <div style="margin-top:24px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+    <h4 style="margin-bottom:16px;">AI 작업 상태 구분법</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <p style="font-size:14px;font-weight:700;color:var(--danger);margin-bottom:8px;">작동 중 (기다리세요)</p>
+        <img src="img/6.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Running 상태"/>
+        <p style="font-size:13px;color:var(--text3);margin-top:6px;">빨간 정지 버튼 = 아직 작업 중. 멈춘 것처럼 보여도 기다리세요.</p>
+      </div>
+      <div>
+        <p style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px;">끝남 (입력 가능)</p>
+        <img src="img/7.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="완료 상태"/>
+        <p style="font-size:15px;color:var(--text3);margin-top:6px;">파란 화살표 버튼 = 작업 완료. 다음 명령을 입력할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 팝업 대응 가이드 -->
+  <div style="margin-top:16px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+    <h4 style="margin-bottom:16px;">팝업이 뜨면?</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div>
+        <img src="img/8.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Run command 팝업"/>
+        <p style="font-size:15px;color:var(--text3);margin-top:6px;">아래쪽에 버튼이 숨어있을 수 있음. 스크롤하세요.</p>
+      </div>
+      <div>
+        <img src="img/9.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Run 버튼"/>
+        <p style="font-size:15px;color:var(--text3);margin-top:6px;"><strong class="green">Run</strong> 버튼을 눌러야 작업이 시작됩니다.</p>
+      </div>
+      <div>
+        <img src="img/10.png" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Accept all"/>
+        <p style="font-size:15px;color:var(--text3);margin-top:6px;">작업 끝나면 <strong class="green">Accept all</strong>로 파일 저장.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;padding:16px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+    <p style="font-size:17px;color:var(--text3);">주제가 없는 분은 아래 중 하나를 복붙하세요:</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+      <span style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:17px;color:var(--text2);">"대출이자 계산기 만들어줘"</span>
+      <span style="padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:17px;color:var(--text2);">"견적서 자동 생성기 만들어줘"</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 6: 기준서 실습 -->
+<!-- ============================== -->
+<div class="slide" id="w2-criteria">
+<div class="slide-inner">
+  <div class="tag">Step 6 &mdash; 기준서로 제작</div>
+  <h2>같은 주제, 이번엔<br/><span class="green">기준서를 넣고</span></h2>
+  <p class="subtitle">아까 "만들어줘" 한마디로 만든 것 vs 기준서를 넣고 만든 것. 차이를 체감합니다.</p>
+
+  <div class="pbox" style="margin-top:32px;">
+    <h3>이렇게 합니다</h3>
+    <div class="pstep"><div class="pstep-num">1</div><div><strong>새 프로젝트 만들기</strong><p>아까 것과 비교해야 하니까 <strong class="green">새 폴더</strong>를 만드세요. Open Folder → 빈 폴더 선택</p></div></div>
+    <div class="pstep"><div class="pstep-num">2</div><div><strong>기준서 다운로드 + 복붙</strong><p>아래에서 기준서 다운 → 열어서 <strong class="green">내용 전체 복사</strong> → AI 채팅에 통째로 붙여넣기 → Enter</p></div></div>
+    <div class="pstep"><div class="pstep-num">3</div><div><strong>AI가 만드는 과정 지켜보기</strong><p>AI가 설계 문서 3개를 먼저 만들고, 그 다음에 구현합니다. <strong>중간에 끼어들지 마세요.</strong><br/>Preview에 결과가 나타나면 확인.</p></div></div>
+    <div class="pstep"><div class="pstep-num">4</div><div><strong>비교</strong><p>아까 만든 것 vs 지금 만든 것. 디자인, 기능, 디테일 차이를 확인하세요.</p></div></div>
+  </div>
+
+  <div style="margin-top:20px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+    <p style="font-size:18px;font-weight:700;margin-bottom:12px;">기준서 다운로드</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <a href="files/기준문서_대출계산기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--accent);color:#000;border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 기준서: 대출이자 계산기</a>
+      <a href="files/기준문서_견적서생성기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--blue);color:#000;border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 기준서: 견적서 생성기</a>
+      <a href="files/기준서_범용_웹앱_템플릿_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 범용 템플릿 (자유주제)</a>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;">
+    <table class="tbl tbl-sm">
+      <tr><th style="width:35%;">증상</th><th>해결법</th></tr>
+      <tr><td>Allow/Trust 팝업</td><td><strong class="green">전부 허용. 정상입니다</strong></td></tr>
+      <tr><td>에러 발생</td><td>"에러 메시지를 AI한테 그대로 붙여넣으세요"</td></tr>
+      <tr><td>AI 응답 멈춤</td><td>"계속해줘" 입력</td></tr>
+      <tr><td>npm 에러</td><td>"npm install 하지 마. 순수 HTML/CSS/JS만 써" 입력</td></tr>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 7: 3가지 비교 결과 -->
+<!-- ============================== -->
+<div class="slide" id="w2-compare">
+<div class="slide-inner">
+  <div class="tag">Step 6 결과 &mdash; 3가지 비교</div>
+  <h2>같은 주제, 3가지 방법<br/><span class="green">결과가 이렇게 다릅니다</span></h2>
+  <p class="subtitle">대출이자 계산기를 3가지 방법으로 만든 실제 결과입니다.</p>
+
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+    <div class="card card-top" style="border-top-color:var(--text3);">
+      <h4 style="color:var(--text3);">"만들어줘" 한마디</h4>
+      <p style="font-size:16px;line-height:1.7;color:var(--text2);">
+        기능: 기본 계산 + 차트<br/>
+        디자인: AI 기본값<br/>
+        구조: 단일 페이지, 위에서 아래로<br/>
+        UX: 입력 → 결과. 끝.
+      </p>
+      <p style="font-size:15px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+        AI가 아는 대로 빠르게 만듦.<br/>기능은 있지만 <strong style="color:var(--danger);">깊이가 없음</strong>.
+      </p>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--blue);">
+      <h4 style="color:var(--blue);">기준서 v1 (기능 목록형)</h4>
+      <p style="font-size:16px;line-height:1.7;color:var(--text2);">
+        기능: 거의 동일<br/>
+        디자인: 약간 나음<br/>
+        구조: 거의 동일<br/>
+        UX: 거의 동일
+      </p>
+      <p style="font-size:15px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+        기능 목록을 줬지만 AI가 이미 아는 것.<br/><strong style="color:var(--danger);">차이가 거의 없음</strong>.
+      </p>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--accent);">
+      <h4 style="color:var(--accent);">기준서 v2 ("문서가 문서를 만드는")</h4>
+      <p style="font-size:16px;line-height:1.7;color:var(--text2);">
+        기능: 시나리오별 탭 분리<br/>
+        디자인: A은행 vs B은행 비교 UI<br/>
+        구조: 사용자 여정 기반 설계<br/>
+        UX: 용어 툴팁, 접근성(aria)
+      </p>
+      <p style="font-size:15px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+        AI가 설계 문서를 먼저 만들고 구현.<br/><strong class="green">구조와 깊이가 다름</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div class="keybox" style="margin-top:24px;">
+    <h3>차이의 핵심: 기능이 아니라 깊이</h3>
+    <table class="tbl" style="margin-top:12px;">
+      <tr><th style="width:25%;">비교</th><th style="width:25%;">"만들어줘"</th><th style="width:25%;">기준서 v1</th><th style="width:25%;">기준서 v2</th></tr>
+      <tr><td>AI의 행동</td><td>바로 코드</td><td>바로 코드</td><td><strong class="green">설계 문서 3개 → 코드</strong></td></tr>
+      <tr><td>사용자 분석</td><td>없음</td><td>없음</td><td><strong class="green">감정, 여정, 막힘 지점 분석</strong></td></tr>
+      <tr><td>디자인 근거</td><td>AI 기본값</td><td>"토스처럼" (모호)</td><td><strong class="green">첫인상/정보구조/초보자 배려</strong></td></tr>
+      <tr><td>기능 설계</td><td>AI 판단</td><td>기능 나열</td><td><strong class="green">시나리오에서 기능 도출</strong></td></tr>
+      <tr><td>빠뜨리는 것</td><td>많음</td><td>비슷</td><td><strong class="green">AI가 스스로 빈틈 점검</strong></td></tr>
+    </table>
+  </div>
+
+  <p style="margin-top:16px;font-size:19px;color:var(--text2);line-height:1.8;text-align:center;">
+    기능 목록을 주는 건 <strong style="color:var(--danger);">AI가 이미 아는 걸 반복</strong>시키는 것.<br/>
+    <strong class="green">깊이 있는 질문</strong>을 주면 AI가 <strong class="green">스스로 더 깊이 생각</strong>합니다.
+  </p>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 8: 기준서 구조 (Step 7-1) -->
+<!-- ============================== -->
+<div class="slide" id="w2-howto">
+<div class="slide-inner">
+  <div class="tag">Step 7 &mdash; 기준서 만드는 법</div>
+  <h2>내 프로젝트용 기준서,<br/><span class="green">이 7칸을 채우면 됩니다</span></h2>
+  <p class="subtitle">아까 체험한 기준서의 구조입니다. 그대로 따라 쓰면 됩니다.</p>
+
+  <div style="margin-top:28px;display:flex;flex-direction:column;gap:0;">
+
+    <!-- 섹션 1: 실행 환경 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;overflow:hidden;">
+      <div style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">1</div>
+      <div style="padding:18px 22px;">
+        <h4 style="color:var(--yellow);margin-bottom:4px;">실행 환경</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;">AI가 삽질하지 않게 <strong>제약 조건</strong>을 먼저 건다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"npm 금지, 순수 HTML/CSS/JS만, 중간에 묻지 말고 끝까지 실행"</em></p>
+      </div>
+    </div>
+
+    <!-- 섹션 2: 프로젝트 목표 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--border);border-bottom:none;">
+      <div style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">2</div>
+      <div style="padding:18px 22px;">
+        <h4 style="color:var(--blue);margin-bottom:4px;">프로젝트 목표</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;">"뭘 만들어라"가 아니라 <strong>비교 대상</strong>을 준다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"네이버 대출계산기보다 시각적으로, 은행 앱보다 빠르게, 엑셀보다 직관적으로"</em></p>
+      </div>
+    </div>
+
+    <!-- 섹션 3: 사용자 시나리오 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--accent);border-bottom:none;background:var(--accent-dim);">
+      <div style="background:rgba(74,222,128,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--accent);">3</div>
+      <div style="padding:18px 22px;">
+        <h4 style="color:var(--accent);margin-bottom:4px;">사용자 시나리오 (가장 중요)</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;"><strong>"기능 나열"이 아니라 "상황 + 감정 + 진짜 원하는 것"</strong>을 적는다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"전세 대출 받으려는데, 월 얼마나 나가는지 모르겠어요. 3억 빌리면 감당이 되나요?"</em><br/><em>"A은행 3.5% 30년 vs B은행 4.0% 20년, 뭐가 유리한지 모르겠어요"</em></p>
+      </div>
+    </div>
+
+    <!-- 섹션 4: AI 실행 규칙 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--accent);border-bottom:none;background:var(--accent-dim);">
+      <div style="background:rgba(74,222,128,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--accent);">4</div>
+      <div style="padding:18px 22px;">
+        <h4 style="color:var(--accent);margin-bottom:4px;">AI 실행 규칙 (비밀 병기)</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;"><strong>"코드 짜기 전에 설계 문서 3개를 먼저 만들어라"</strong> — 이 한 줄이 결과를 바꿉니다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;">다음 슬라이드에서 자세히 설명합니다</p>
+      </div>
+    </div>
+
+    <!-- 섹션 5: 구현 기준 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--border);border-bottom:none;">
+      <div style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">5</div>
+      <div style="padding:18px 22px;">
+        <h4 style="margin-bottom:4px;">구현 기준</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;">측정 가능한 품질 기준을 적는다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"전체 UI 한글", "기본값이 채워져 있어서 바로 결과가 보여야 한다", "모바일 375px"</em></p>
+      </div>
+    </div>
+
+    <!-- 섹션 6: 금지사항 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--border);border-bottom:none;">
+      <div style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">6</div>
+      <div style="padding:18px 22px;">
+        <h4 style="color:var(--danger);margin-bottom:4px;">금지사항</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;">AI가 하면 안 되는 것을 명시한다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"서버/DB 금지", "로그인 만들지 마", "영어 UI 금지", "외부 API 호출 금지"</em></p>
+      </div>
+    </div>
+
+    <!-- 섹션 7: 검증 -->
+    <div style="display:grid;grid-template-columns:48px 1fr;border:1px solid var(--border);border-radius:0 0 12px 12px;">
+      <div style="background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);border-radius:0 0 0 12px;">7</div>
+      <div style="padding:18px 22px;">
+        <h4 style="margin-bottom:4px;">검증</h4>
+        <p style="font-size:17px;color:var(--text2);line-height:1.7;">AI에게 스스로 점검하라고 시킨다</p>
+        <p style="font-size:15px;color:var(--text3);margin-top:4px;"><em>"시나리오 A~D가 모두 해결되는가?", "초보자가 이 앱을 쓸 수 있는가?"</em></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="keybox" style="margin-top:24px;">
+    <h3>핵심은 3번과 4번</h3>
+    <p style="font-size:19px;">나머지 5개는 한두 줄이면 됩니다.<br/>
+    <strong class="green">시나리오</strong>와 <strong class="green">AI 실행 규칙</strong>이 결과 품질을 결정합니다.</p>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 9: 비밀 병기 — "문서가 문서를 만들게" (Step 7-2) -->
+<!-- ============================== -->
+<div class="slide" id="w2-secret">
+<div class="slide-inner">
+  <div class="tag">Step 7 &mdash; 비밀 병기</div>
+  <h2>4번 "AI 실행 규칙"이<br/><span class="green">왜 결과를 바꾸는가</span></h2>
+  <p class="subtitle">"만들어줘" vs "설계 문서를 먼저 만들고, 그 다음에 만들어라"</p>
+
+  <div style="margin-top:28px;display:grid;grid-template-columns:1fr 60px 1fr;gap:0;align-items:stretch;">
+    <!-- 왼쪽: 없을 때 -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+      <p style="font-size:14px;font-weight:700;color:var(--danger);letter-spacing:1px;margin-bottom:12px;">기준서에 4번이 없으면</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:14px;background:var(--surface2);border-radius:8px;">
+          <p style="font-size:17px;color:var(--text2);">사용자가 기준서를 줌</p>
+        </div>
+        <div style="text-align:center;font-size:16px;color:var(--text3);">v</div>
+        <div style="padding:14px;background:var(--surface2);border-radius:8px;">
+          <p style="font-size:17px;color:var(--danger);font-weight:700;">AI가 바로 코드 작성</p>
+        </div>
+        <div style="text-align:center;font-size:16px;color:var(--text3);">v</div>
+        <div style="padding:14px;background:var(--danger-dim);border:1px solid rgba(248,113,113,0.3);border-radius:8px;">
+          <p style="font-size:17px;color:var(--danger);font-weight:700;">기능은 있지만 깊이 없음</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 중간 VS -->
+    <div style="display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--text3);">VS</div>
+
+    <!-- 오른쪽: 있을 때 -->
+    <div style="background:linear-gradient(135deg,rgba(74,222,128,0.06),var(--surface));border:1px solid rgba(74,222,128,0.3);border-radius:16px;padding:28px;">
+      <p style="font-size:14px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:12px;">기준서에 4번이 있으면</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:14px;background:var(--surface2);border-radius:8px;">
+          <p style="font-size:17px;color:var(--text2);">사용자가 기준서를 줌</p>
+        </div>
+        <div style="text-align:center;font-size:16px;color:var(--text3);">v</div>
+        <div style="padding:14px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:8px;">
+          <p style="font-size:17px;color:var(--accent);font-weight:700;">AI가 설계 문서 3개를 먼저 작성</p>
+          <p style="font-size:15px;color:var(--text3);margin-top:4px;">사용자분석 → 디자인기준 → 기능설계</p>
+        </div>
+        <div style="text-align:center;font-size:16px;color:var(--text3);">v</div>
+        <div style="padding:14px;background:var(--surface2);border-radius:8px;">
+          <p style="font-size:17px;color:var(--text2);">그 문서를 기반으로 구현</p>
+        </div>
+        <div style="text-align:center;font-size:16px;color:var(--text3);">v</div>
+        <div style="padding:14px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.3);border-radius:8px;">
+          <p style="font-size:17px;color:var(--accent);font-weight:700;">구조와 깊이가 다른 결과</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:24px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.2);border-radius:12px;">
+    <h3 style="color:var(--accent);margin-bottom:12px;">기준서에 넣는 마법의 문장</h3>
+    <div style="padding:16px 20px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:12px;">
+      <p style="font-size:18px;color:var(--text);line-height:1.8;font-weight:700;">
+        "코드를 짜기 전에, 아래 3개의 설계 문서를 먼저 파일로 작성하라.<br/>
+        각 문서를 충분히 깊게 작성한 후, 그 문서들을 기반으로 구현한다.<br/>
+        문서 작성 없이 바로 코드를 짜는 것을 금지한다."
+      </p>
+    </div>
+    <p style="font-size:17px;color:var(--text2);line-height:1.8;">
+      <strong class="green">왜 효과가 있는가?</strong> AI에게 "깊이 생각해"라고 말하면 효과 없습니다.<br/>
+      하지만 <strong>"파일로 써라"</strong>라고 하면, 파일에 쓸 내용이 있어야 하니까 <strong class="green">더 구체적으로 분석</strong>하게 됩니다.
+    </p>
+  </div>
+
+  <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div style="padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center;">
+      <div style="font-size:28px;font-weight:900;color:var(--accent);margin-bottom:6px;">Doc 1</div>
+      <p style="font-size:16px;font-weight:700;margin-bottom:6px;">사용자 심층 분석</p>
+      <p style="font-size:15px;color:var(--text3);line-height:1.7;">감정 상태는? 진짜 원하는 건?<br/>초보자가 막힐 지점은?</p>
+    </div>
+    <div style="padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center;">
+      <div style="font-size:28px;font-weight:900;color:var(--accent);margin-bottom:6px;">Doc 2</div>
+      <p style="font-size:16px;font-weight:700;margin-bottom:6px;">디자인 기준</p>
+      <p style="font-size:15px;color:var(--text3);line-height:1.7;">첫 3초의 인상은?<br/>숫자가 많을 때 어떻게?</p>
+    </div>
+    <div style="padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center;">
+      <div style="font-size:28px;font-weight:900;color:var(--accent);margin-bottom:6px;">Doc 3</div>
+      <p style="font-size:16px;font-weight:700;margin-bottom:6px;">기능 + 기술 설계</p>
+      <p style="font-size:15px;color:var(--text3);line-height:1.7;">시나리오에서 기능 도출<br/>AI가 흔히 놓치는 것들</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== -->
+<!-- W2 SLIDE 10: 마무리 + 자료 -->
+<!-- ============================== -->
+<div class="slide" id="w2-closing">
+<div class="slide-inner">
+  <div class="tag">마무리</div>
+  <h2>결과 공유 +<br/><span class="green">가져가시는 자료</span></h2>
+
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+    <div class="card card-top" style="text-align:center;">
+      <h4>결과 공유</h4>
+      <p style="font-size:17px;">만든 것 화면을 돌려가며 보여주기.<br/>"기준서 없이 vs 있을 때 가장 큰 차이가 뭐였나요?"</p>
+    </div>
+    <div class="card card-top" style="border-top-color:var(--yellow);">
+      <h4>보안 주의</h4>
+      <p style="font-size:17px;">개인정보 넣지 마세요.<br/>API 키 직접 입력 금지.<br/>공개 URL이면 민감정보 확인.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:24px;background:var(--accent-dim);border:1px solid rgba(74,222,128,0.2);border-radius:12px;">
+    <p style="font-size:18px;font-weight:700;margin-bottom:14px;color:var(--accent);">가져가시는 자료</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+      <a href="files/기준문서_대출계산기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--accent);color:#000;border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 기준서 예시 (대출계산기)</a>
+      <a href="files/기준문서_견적서생성기_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--accent);color:#000;border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 기준서 예시 (견적서)</a>
+      <a href="files/기준서_범용_웹앱_템플릿_v3.md" download style="display:inline-flex;align-items:center;gap:6px;padding:12px 20px;background:var(--blue);color:#000;border-radius:8px;text-decoration:none;font-size:16px;font-weight:700;">&#8595; 범용 템플릿 (자유주제)</a>
+      <a href="files/Antigravity_퀵가이드.md" download style="display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;text-decoration:none;font-size:15px;">&#8595; Antigravity 퀵가이드</a>
+    </div>
+    <p style="font-size:16px;color:var(--text3);margin-top:12px;">기준서 예시를 열어서 구조를 보세요. 주제만 바꾸면 그대로 쓸 수 있습니다.</p>
+  </div>
+
+  <div class="keybox" style="margin-top:24px;">
+    <h3>오늘의 핵심</h3>
+    <p style="font-size:19px;">
+      AI한테 <strong style="color:var(--danger);">"만들어줘"</strong>는 누구나 합니다.<br/>
+      <strong class="green">기준서 한 장</strong>이 결과의 깊이를 바꿉니다.<br/>
+      핵심은 <strong class="green">시나리오</strong>와 <strong class="green">"문서를 먼저 만들어라"</strong>는 한 줄.
+    </p>
+  </div>
+
+  <div style="margin-top:20px;padding:18px 24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+    <p style="font-size:17px;color:var(--text2);line-height:1.8;">
+      <strong>1주차 연결</strong>: "1주차에 이야기한 '규칙 파일로 AI를 관리한다'는 것, 오늘 체험한 '기준서'가 그 시작입니다."
+    </p>
+  </div>
+</div>
+</div>
+
+</div><!-- /week2 -->
+
+<footer>
+  <h3>AI 에이전트 시대, AI 제대로 쓰기</h3>
+  <p>2026</p>
+</footer>
+
+<!-- KEYBOARD HINT -->
+<div class="kb-hint">
+  <span class="kb-key">&#8593;</span><span class="kb-key">&#8595;</span> 섹션 이동
+  &nbsp;&nbsp;
+  <span class="kb-key">1</span>~<span class="kb-key">9</span> 바로가기
+</div>
+
+<script>
+// ── Week system ──────────────────────────────────────────
+const navNames1 = {
+  's-title':'타이틀','s-time':'흐름','s-global':'글로벌','s-examples':'예시',
+  's-context':'AI변화','s-context2':'의미','s-reality':'현실','s-compare':'에이전트',
+  's-problem':'문제','s-solution':'해결','s-tool':'도구',
+  's-agent1':'에이전트','s-agent2':'제어','s-methods1':'실전','s-methods2':'요약',
+  's-topic':'주제','s-why':'왜가능','s-why2':'3변화','s-tools':'도구','s-flow':'흐름',
+  's-setup':'준비','s-practice':'실습','s-timeline':'진행',
+  's-share':'공유','s-security':'위험','s-closing':'마무리'
+};
+const navNames2 = {
+  'w2-title':'타이틀','w2-intro':'소개','w2-status':'현황+방안',
+  'w2-setup':'세팅1','w2-setup2':'세팅2','w2-setup3':'세팅3','w2-setup4':'세팅4','w2-setup5':'세팅5','w2-free':'자유제작',
+  'w2-criteria':'기준서제작','w2-compare':'3가지비교','w2-howto':'기준서구조','w2-secret':'비밀병기','w2-closing':'마무리'
+};
+
+let currentWeek = 1;
+let activeSlides = [];
+let currentSlide = 0;
+
+const prog = document.getElementById('prog');
+const slideNum = document.getElementById('slideNum');
+const nav = document.getElementById('nav');
+
+function buildNav(names){
+  nav.innerHTML = '';
+  activeSlides.forEach((s,i) => {
+    const b = document.createElement('button');
+    b.className = 'topbar-btn';
+    b.dataset.idx = i;
+    b.textContent = names[s.id] || (i+1);
+    b.onclick = () => goSlide(i);
+    nav.appendChild(b);
+  });
+}
+
+function switchWeek(w){
+  currentWeek = w;
+  document.getElementById('week1').classList.toggle('active', w===1);
+  document.getElementById('week2').classList.toggle('active', w===2);
+  document.getElementById('btnWeek1').classList.toggle('active', w===1);
+  document.getElementById('btnWeek2').classList.toggle('active', w===2);
+  activeSlides = Array.from(
+    document.querySelector('#week'+w).querySelectorAll('.slide')
+  );
+  const names = w===1 ? navNames1 : navNames2;
+  buildNav(names);
+  window.scrollTo({top:0, behavior:'instant'});
+  currentSlide = 0;
+  updateUI();
+}
+
+function updateUI(){
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  if(h>0) prog.style.width = (window.scrollY/h*100)+'%';
+  let cur = 0;
+  activeSlides.forEach((s,i) => {
+    if(window.scrollY >= s.offsetTop - 200) cur = i;
+  });
+  currentSlide = cur;
+  slideNum.textContent = (cur+1)+' / '+activeSlides.length;
+  nav.querySelectorAll('.topbar-btn').forEach((b,i) => {
+    b.classList.toggle('active', i===cur);
+  });
+}
+
+function goSlide(i){
+  if(i<0) i=0;
+  if(i>=activeSlides.length) i=activeSlides.length-1;
+  const y = activeSlides[i].offsetTop - 54;
+  window.scrollTo({top:y, behavior:'smooth'});
+}
+
+// Init with week 1
+switchWeek(1);
+
+window.addEventListener('scroll', updateUI, {passive:true});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'||e.key===' '){
+    e.preventDefault(); goSlide(currentSlide+1);
+  }
+  if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
+    e.preventDefault(); goSlide(currentSlide-1);
+  }
+  const n = parseInt(e.key);
+  if(n>=1 && n<=9){ e.preventDefault(); goSlide(n-1); }
+  if(e.key==='0'){ e.preventDefault(); goSlide(9); }
+});
+</script>
+</body>
+</html>

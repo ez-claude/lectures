@@ -1,0 +1,25 @@
+{
+  "ai": {
+    "gemini": {
+      "default": "gemini-3.1-pro-preview",
+      "fast": "gemini-3-flash-preview",
+      "vision": "gemini-3.1-pro-preview",
+      "lowCost": "gemini-2.5-flash-lite",
+      "note": "2026-03 기준. 3.1-pro=최상위, 3-flash=가성비"
+    },
+    "openai": {
+      "default": "gpt-5.1",
+      "reasoning": "gpt-5.3-codex",
+      "note": "모델 변경 시 반드시 WebSearch로 현재 사용 가능 여부 확인"
+    },
+    "anthropic": {
+      "default": "claude-sonnet-4-6",
+      "note": "현재 세션 모델 - 변경 시 WebSearch 확인"
+    },
+    "rule": "AI 모델명은 학습 데이터가 구버전일 수 있음. 반드시 이 파일에서 읽거나 WebSearch로 확인할 것"
+  },
+  "_meta": {
+    "description": "AI 모델 버전 관리 - AI가 잘못된 모델명을 쓰지 않도록 잠금",
+    "lastUpdated": "2026-03-13"
+  }
+}

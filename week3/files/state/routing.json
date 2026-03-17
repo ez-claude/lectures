@@ -1,0 +1,93 @@
+{
+  "departments": {
+    "검증": {
+      "agents": ["코드 리뷰 에이전트", "보안 검증 에이전트"],
+      "skills": ["requesting-code-review", "systematic-debugging"],
+      "trigger": "검증|리뷰|보안|디버깅",
+      "description": "코드 품질, 보안 검증 전담"
+    },
+    "개발": {
+      "agents": ["프론트엔드 에이전트", "백엔드 에이전트"],
+      "skills": ["frontend-design", "vercel-react-best-practices", "backend-architect"],
+      "trigger": "React|Next|Python|FastAPI|구현|개발",
+      "description": "실제 코드 작성 및 구현 전담"
+    },
+    "설계": {
+      "agents": ["설계 에이전트"],
+      "skills": ["architecture-patterns", "writing-plans"],
+      "trigger": "설계|아키텍처|리팩토링",
+      "description": "시스템 설계 및 아키텍처 결정 전담"
+    }
+  },
+  "departmentRouting": {
+    "rules": [
+      "3-5 파일 + 신규기능/복합수정 → DMAD 자문자답 토론 (1라운드) + sim 1회",
+      "3-5 파일 + 설정/배포/리팩토링 → 토론 스킵 + sim 1회 (토큰 절감)",
+      "6+ 파일 → DMAD 토론 2라운드 + sim 루프 2회",
+      "코드 생성 후 → 검증 스킬 자동 실행",
+      "커밋 전 → 보안 검증 자동 실행"
+    ],
+    "discussionPattern": {
+      "method": "DMAD - 추론 방향이 다른 두 역할(설계자/사용자)의 자문자답",
+      "roles": {
+        "설계자": {
+          "사고방향": "순방향 (설계 → 구현 → 결과 예측)",
+          "질문": [
+            "이 문제를 해결하는 더 단순한 방법이 있나?",
+            "이 설계가 기존 코드의 어디와 부딪히나?",
+            "이 설계에서 가장 위험한 가정 하나는?",
+            "이 구현이 기존 코드베이스에 이미 있는 로직과 중복되는가?"
+          ]
+        },
+        "사용자": {
+          "사고방향": "역방향 (실제로 쓸 때 → 이 설계로 가능한가?)",
+          "질문": [
+            "처음 보는 사람이 이 기능을 찾고 쓸 수 있나?",
+            "사용자가 기대하는 가장 자연스러운 방식으로 동작하나?",
+            "실수하거나 실패했을 때 스스로 해결할 수 있나?",
+            "실패했을 때 사용자가 알 수 있나? 에러가 조용히 삼켜지는 곳은 없나?"
+          ]
+        }
+      },
+      "skipConditions": ["1-2 파일", "설정/배포/리팩토링", "동일 패턴 반복", "사용자 명시 요청"]
+    }
+  },
+  "principles": {
+    "noTempFix": true
+  },
+  "triggers": {
+    "rcaTrigger": {
+      "keywords": ["에러 분석", "원인 찾아", "왜 실패", "문제 해결", "디버깅"],
+      "workflow": {
+        "1_collect": "증거 수집 (추측 금지!)",
+        "2_analyze": "patterns.json에서 유사 패턴 매칭",
+        "3_solve": "데이터 기반 해결책 적용"
+      }
+    },
+    "teachTrigger": {
+      "keywords": ["디자인 컨텍스트", "디자인 세팅", "프로젝트 디자인", "디자인 기준"],
+      "action": "skill:teach-impeccable",
+      "description": "프로젝트 디자인 컨텍스트 초기 설정 - 색상/폰트/스타일 기준을 AI가 잡아줌 (1회성)"
+    }
+  },
+  "claude_mistake_prevention": {
+    "enabled": true,
+    "prevention_rules": {
+      "partial_implementation_loss": {
+        "before_edit": "전체 파일 읽기 필수",
+        "during_edit": "충분한 컨텍스트 포함",
+        "after_edit": "변경사항 명시적 설명"
+      },
+      "communication_term_confusion": {
+        "use_user_language": true,
+        "confirm_before_action": true
+      }
+    }
+  },
+  "_meta": {
+    "description": "에이전트 + 스킬 라우팅 - AI가 상황에 맞는 전문 에이전트/스킬을 자동으로 선택",
+    "target": "Antigravity (안티그래비티) 사용자용. Claude Code 사용자는 강사에게 문의하세요.",
+    "lastUpdated": "2026-03-16",
+    "note": "교육생용 - dispatching-parallel-agents 스킬 기반 작업 분배, skills.sh로 스킬 확장"
+  }
+}

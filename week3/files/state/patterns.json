@@ -1,0 +1,110 @@
+{
+  "solved": [
+    {
+      "id": "api-key-leak",
+      "symptom": "API 키가 코드에 노출됨",
+      "cause": "파일에 API 키를 직접 작성 (하드코딩)",
+      "solution": "환경변수 사용: os.getenv('API_KEY') 또는 process.env.API_KEY",
+      "frequency": "high"
+    },
+    {
+      "id": "api-key-github-exposure",
+      "symptom": "GitHub에 API 키가 올라감",
+      "cause": "코드에 API 키를 넣은 채로 git push",
+      "solution": "1) 환경변수로 변경 2) git push 전 검사 필수 3) 노출된 키 즉시 교체",
+      "frequency": "high"
+    },
+    {
+      "id": "browser-cache-prevents-code-update",
+      "symptom": "코드 수정했는데 브라우저에 반영 안 됨",
+      "cause": "브라우저가 이전 파일을 캐싱",
+      "solution": "1) .next 폴더 삭제 2) 다른 포트로 서버 재시작 3) 브라우저 강력 새로고침 (Ctrl+Shift+R)",
+      "frequency": "critical"
+    },
+    {
+      "id": "windows-encoding-cp949",
+      "symptom": "한글이 깨지거나 UnicodeEncodeError 발생",
+      "cause": "Windows 기본 인코딩 cp949와 UTF-8 충돌",
+      "solution": "1) PYTHONIOENCODING=utf-8 환경변수 2) encoding='utf-8' 명시 3) errors='replace' 추가",
+      "frequency": "very_high"
+    },
+    {
+      "id": "import-missing",
+      "symptom": "NameError: name 'X' is not defined",
+      "cause": "모듈이나 함수를 import하지 않음",
+      "solution": "파일 상단에 필요한 import 추가 (os, sys, typing 등)",
+      "frequency": "medium"
+    },
+    {
+      "id": "file-extension-hardcode",
+      "symptom": "특정 파일 형식에서만 작동하고 다른 형식은 실패",
+      "cause": "파일 확장자를 .mp3, .jpg 등으로 하드코딩",
+      "solution": "os.path.splitext()로 확장자 무관하게 처리",
+      "frequency": "critical"
+    },
+    {
+      "id": "db-field-naming-snake-vs-camel",
+      "symptom": "데이터가 읽히지 않음 - 필드명 불일치",
+      "cause": "백엔드는 snake_case, 프론트엔드는 camelCase 사용",
+      "solution": "양쪽 케이스 모두 지원하는 fallback 로직 추가",
+      "frequency": "high"
+    }
+  ],
+  "preventive_patterns": [
+    {
+      "id": "verify-before-implement",
+      "trigger": ["새 기능 추가", "API 통합", "데이터 구조 변경"],
+      "problem": "기존 코드 확인 없이 추측으로 구현 시작",
+      "solution": "READ -> VERIFY -> IMPLEMENT 순서 강제"
+    },
+    {
+      "id": "file-format-change-impact",
+      "trigger": ["형식 추가", "확장자 추가", "파일 형식 변경"],
+      "problem": "확장자가 하드코딩되어 다른 형식 미지원",
+      "solution": "os.path.splitext() 사용하여 확장자 무관하게 처리"
+    },
+    {
+      "id": "ai-model-change",
+      "trigger": ["모델 변경", "최신 모델"],
+      "problem": "AI가 학습한 모델명이 이미 구버전일 수 있음",
+      "solution": "무조건 WebSearch 또는 versions.json 확인 필수"
+    },
+    {
+      "id": "ai-api-integration",
+      "trigger": ["Gemini API", "OpenAI API", "Claude API"],
+      "problem": "구버전 API 사용으로 에러 발생",
+      "solution": "WebSearch로 최신 API 문서 확인 후 구현"
+    }
+  ],
+  "claude_mistakes": [
+    {
+      "id": "partial-implementation-loss",
+      "symptom": "A 기능 추가 후 B 기능 추가하면 A가 사라짐",
+      "cause": "전체 파일을 확인하지 않고 부분만 수정",
+      "solution": "수정 전 항상 전체 파일 확인",
+      "frequency": "very_high"
+    },
+    {
+      "id": "outdated-model-name",
+      "symptom": "존재하지 않는 AI 모델명을 사용",
+      "cause": "AI의 학습 데이터가 구버전",
+      "solution": "AI 모델 정보는 versions.json 또는 웹 검색으로 확인",
+      "frequency": "high"
+    },
+    {
+      "id": "type-value-incomplete-replacement",
+      "symptom": "타입 변경 후 일부 위치에서 빌드 에러",
+      "cause": "값 변경 시 모든 사용처를 수정하지 않음",
+      "solution": "값 변경 전 전체 검색으로 모든 사용처 확인",
+      "frequency": "high"
+    }
+  ],
+  "_meta": {
+    "description": "범용 코딩 실수 패턴 DB - AI가 같은 실수를 반복하지 않도록 방지",
+    "solved_count": 7,
+    "preventive_count": 4,
+    "claude_mistakes_count": 3,
+    "lastUpdated": "2026-03-13",
+    "note": "교육생용 - 프로젝트에 맞게 패턴을 추가하면 AI 품질이 점점 좋아집니다"
+  }
+}

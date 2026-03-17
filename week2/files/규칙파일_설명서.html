@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CLAUDE.md 해설서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--sf:#161b22;--bd:#30363d;
+  --tx:#c9d1d9;--tx2:#8b949e;--wh:#f0f0f0;
+  --hd:#d2a8ff;--kw:#ff7b72;--val:#79c0ff;
+  --grn:#4ade80;--grn-d:rgba(74,222,128,.08);
+  --ylw:#fbbf24;--ylw-d:rgba(251,191,36,.08);
+  --blu:#60a5fa;--blu-d:rgba(96,165,250,.06);
+  --red:#f87171;--red-d:rgba(248,113,113,.06);
+}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans KR',sans-serif;margin:0;padding:0;}
+
+/* 헤더 */
+.hdr{max-width:1600px;margin:0 auto;padding:40px 40px 24px;}
+.hdr h1{font-size:36px;font-weight:900;color:var(--wh);}
+.hdr p{font-size:17px;color:var(--tx2);margin-top:6px;line-height:1.5;}
+.yl{color:var(--ylw);}
+
+/* 2단 그리드: 왼쪽 코드 | 오른쪽 해설 */
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:1600px;
+  margin:0 auto;
+  border-bottom:1px solid var(--bd);
+}
+.row:last-child{border-bottom:none;}
+
+/* 왼쪽 코드 셀 */
+.cell-code{
+  padding:16px 28px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:18px;
+  line-height:1.4;
+  white-space:pre-wrap;
+  word-break:break-word;
+  border-right:1px solid var(--bd);
+}
+
+/* 오른쪽 해설 셀 */
+.cell-note{
+  padding:16px 28px;
+  font-size:20px;
+  line-height:1.5;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.cell-note h4{font-size:24px;font-weight:900;margin-bottom:6px;}
+.cell-note p{color:var(--tx2);margin:0;font-size:18px;line-height:1.5;}
+.cell-note strong{color:var(--wh);}
+.cell-note .detail{margin-top:6px;}
+
+.cell-note.g{background:var(--grn-d);} .cell-note.g h4{color:var(--grn);}
+.cell-note.y{background:var(--ylw-d);} .cell-note.y h4{color:var(--ylw);}
+.cell-note.b{background:var(--blu-d);} .cell-note.b h4{color:var(--blu);}
+.cell-note.r{background:var(--red-d);} .cell-note.r h4{color:var(--red);}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:13px;font-weight:700;margin-bottom:6px;align-self:flex-start;}
+.be{background:var(--ylw-d);color:var(--ylw);border:1px solid rgba(251,191,36,.3);}
+.bl{background:rgba(139,148,158,.1);color:var(--tx2);border:1px solid rgba(139,148,158,.2);}
+
+/* 마크다운 스타일 */
+.h1{color:var(--wh);font-size:24px;font-weight:900;}
+.h2{color:var(--hd);font-size:22px;font-weight:700;}
+.h3{color:var(--val);font-size:18px;font-weight:700;}
+.cm{color:var(--tx2);font-style:italic;}
+.kw{color:var(--kw);font-weight:700;}
+.bd{color:var(--wh);font-weight:700;}
+.tbl{color:var(--tx2);}
+.cd{background:rgba(110,118,129,.15);padding:2px 8px;border-radius:4px;}
+.bq{border-left:3px solid var(--bd);padding-left:14px;color:var(--tx2);}
+.sk{color:var(--grn);font-weight:700;}
+.ag{color:var(--blu);font-weight:700;}
+
+/* 첫 행 파일 탭 */
+.file-tab{
+  grid-column:1/-1;
+  max-width:1600px;
+  margin:0 auto;
+  padding:0 40px;
+}
+.tab{background:var(--sf);border:1px solid var(--bd);border-bottom:none;border-radius:10px 10px 0 0;padding:10px 20px;font-size:15px;font-weight:700;color:var(--tx2);display:inline-block;margin-top:20px;}
+
+@media(max-width:900px){
+  .row{grid-template-columns:1fr;}
+  .cell-code{border-right:none;border-bottom:1px solid var(--bd);font-size:15px;padding:16px 20px;}
+  .cell-note{padding:16px 20px;}
+  .cell-note h4{font-size:20px;} .cell-note p{font-size:16px;}
+  .hdr{padding:24px 16px 16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>CLAUDE.md 해설서</h1>
+  <p>왼쪽 = 강사가 실제 사용하는 규칙 파일 원본 &nbsp;|&nbsp; 오른쪽 = 해설</p>
+  <p class="yl">노란색 [수정 가능] 부분만 바꾸세요. 나머지는 그대로 두면 됩니다.</p>
+</div>
+
+<div class="file-tab"><div class="tab">CLAUDE.md</div></div>
+
+<!-- ====== 타이틀 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h1"># Claude Code 마스터 설정</span>
+
+<span class="bq">> 이 파일은 항상 로드됨.
+> 세부 규칙은 rules/ 폴더 참조.</span>
+</div>
+<div class="cell-note g">
+  <h4>이 파일 자체가 뭔가요?</h4>
+  <p>그냥 텍스트 파일입니다. 프로젝트 폴더에 넣어두면 AI가 대화를 시작할 때 <strong>자동으로 읽고 모든 작업에 적용</strong>합니다. 별도 설치나 설정은 필요 없습니다.</p>
+  <p class="detail">도구에 따라 파일명만 다릅니다: Claude Code는 CLAUDE.md, Antigravity는 프로젝트 루트에 RULES.md, Cursor는 .cursorrules.</p>
+</div>
+</div>
+
+<!-- ====== 절대 규칙 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 절대 규칙 (최우선)</span>
+
+<span class="kw">1.</span> <span class="bd">이모지 금지</span> - 텍스트로 대체 ([OK], [FAIL], [Step])
+<span class="kw">2.</span> <span class="bd">한글 응답</span> - 모든 출력은 한글
+<span class="kw">3.</span> <span class="bd">버전 잠금</span> - state/versions.json 우선
+<span class="kw">4.</span> <span class="bd">보안 필수</span> - API 키 환경변수만, 하드코딩 금지
+<span class="kw">5.</span> <span class="bd">Pillar 시스템 필수</span> - Build Mode에서 Step 0~5 강제 실행
+<span class="kw">6.</span> <span class="bd">기록 전 검증</span> - 도구로 확인 가능한 것은 도구로 확인 후 기록
+</div>
+<div class="cell-note y">
+  <span class="badge be">수정 가능</span>
+  <h4>절대 규칙 = AI의 헌법</h4>
+  <p>AI가 <strong>매 대화마다 반드시 지키는 기본 행동</strong>입니다. 이게 없으면 AI가 영어로 답변하거나, API 키를 코드에 직접 써버립니다.</p>
+  <p class="detail">본인 프로젝트에 맞게 규칙을 추가하거나 수정해도 됩니다. 예를 들어 영어 프로젝트면 2번을 "영어 응답"으로 바꾸세요.</p>
+</div>
+</div>
+
+<!-- ====== GATE ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## [GATE SYSTEM] 코드 생성 전 필수 관문</span>
+
+<span class="bq">> "만들어줘", "구현해줘", "코드" 키워드 감지 시 자동 실행.
+> 관문 통과 전 코드 생성 금지</span>
+
+<span class="h3">### GATE -1: Pre-Plan Gate</span>
+플랜 품질 검증. 5개 체크:
+경쟁분석 / 근본원인 / 품질기준 / 도메인규칙 / 검증방법
+→ 3개 미만 시 차단
+
+<span class="h3">### GATE 0: 버전 파일 Read</span>
+Read: <span class="cd">versions.json</span>
+→ [GATE 0 통과] 라이브러리/AI 모델 정확한 버전 확인
+
+<span class="h3">### GATE 1: 패턴 파일 Read</span>
+Read: <span class="cd">patterns.json</span>
+→ [GATE 1 통과] 이전 실수 패턴 확인
+
+<span class="h3">### GATE 2</span>
+관련 패턴 경고 → [GATE 통과] 출력 후 코드 생성 시작
+</div>
+<div class="cell-note r">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>GATE = 코드 짜기 전 검문소</h4>
+  <p>"만들어줘"라고 하면 AI가 <strong>바로 코드를 짜지 않습니다.</strong> 먼저 사용 중인 라이브러리 버전을 확인하고, 이전에 같은 실수를 한 적이 있는지 체크합니다.</p>
+  <p class="detail">이게 없으면 AI가 존재하지 않는 라이브러리 버전이나 삭제된 함수를 쓰는 실수를 합니다. GATE -1은 플랜 자체의 품질도 검증합니다. 경쟁 분석이나 검증 방법이 빠져있으면 플랜 단계에서 차단합니다.</p>
+</div>
+</div>
+
+<!-- ====== POST-BUILD ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## [POST-BUILD] 코드 생성 후 필수 검증</span>
+
+코드 생성 완료 후 반드시:
+<span class="kw">[A]</span> versions.json 일치: [OK/FAIL]
+<span class="kw">[B]</span> patterns.json 위반: [OK/FAIL]
+<span class="kw">[C]</span> API 키 하드코딩: [OK/FAIL]
+<span class="kw">[D]</span> import 누락: [OK/FAIL]
+</div>
+<div class="cell-note b">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>만든 후에도 자동 4가지 검증</h4>
+  <p>코드를 다 만들고 나서도 끝이 아닙니다. <strong>버전이 맞는지, 이전 실수를 반복하지 않았는지, API 키가 노출되지 않았는지, import가 빠지지 않았는지</strong> 자동으로 체크합니다. 문제가 있으면 AI가 스스로 수정합니다.</p>
+</div>
+</div>
+
+<!-- ====== DEBUGGING ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## [DEBUGGING] 근본 원인 분석</span>
+
+<span class="bq">> 스킬 <span class="sk">`systematic-debugging`</span> 기반.
+> 트리거 키워드 감지 시 필수 실행.</span>
+
+<span class="h3">### 트리거 키워드</span>
+"아직도", "똑같아", "그대론데", "달라진게 없는데",
+"여전히", "안 바뀌었어", "같은 에러", "또"
+
+<span class="h3">### 필수 실행 순서</span>
+[1/5] 문제 유형 식별
+[2/5] 에러 로그/콘솔 실제 데이터 수집
+[3/5] 데이터 기반 원인 분석 <span class="kw">(추측 금지!)</span>
+[4/5] 수정 적용
+[5/5] 사용자에게 보고: 원인 + 근거 + 해결 방안
+
+<span class="h3">### 강제 규칙</span>
+- <span class="kw">[금지]</span> 데이터 확인 없이 코드 수정
+- <span class="kw">[금지]</span> "아마도", "~인 것 같습니다" 추측성 표현
+- <span class="kw">[필수]</span> 도구 실행 결과 → 원인 분석 → 수정 제안
+</div>
+<div class="cell-note g">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>도구(스킬): systematic-debugging</h4>
+  <p>이게 <strong>"도구(스킬)"의 실제 작동 예시</strong>입니다. "아직도 안 돼"라고 말하면 AI가 추측 모드를 끄고 증거 기반 분석 모드를 켭니다.</p>
+  <p class="detail">"아마 이거 같아요" 식의 추측을 금지하고, 반드시 에러 로그를 먼저 확인한 뒤 원인을 찾습니다. <strong>systematic-debugging 스킬이 설치되어 있어서</strong> 디버깅 품질이 완전히 달라집니다.</p>
+  <p class="detail">스킬 = 버튼만 누르면 결과가 나오는 도구라고 했죠? 여러분은 "아직도 안 돼"라고 말만 하면 됩니다.</p>
+</div>
+</div>
+
+<!-- ====== COMMIT ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## [COMMIT] 검증 후 커밋</span>
+
+<span class="bq">> 스킬 <span class="sk">`verification-before-completion`</span>
+> + <span class="sk">`finishing-a-development-branch`</span> 기반</span>
+
+"완료", "배포", "커밋" 감지 시:
+1. 보안 스캔 실행 (API 키 노출 검사)
+2. 코드 품질 검증 (lint, 타입 체크)
+3. FAIL → 커밋 중단, 통과 시 git commit
+</div>
+<div class="cell-note g">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>도구(스킬) 2개가 합쳐진 예시</h4>
+  <p><strong>verification-before-completion</strong> = 완료 전에 자동으로 검증하는 도구<br/><strong>finishing-a-development-branch</strong> = 커밋 전에 보안+품질을 체크하는 도구</p>
+  <p class="detail">이 두 스킬이 합쳐져서 "커밋해줘" 한마디에 <strong>검증 → 통과 확인 → 커밋까지 전부 자동</strong>으로 진행됩니다. 스킬은 이렇게 여러 개를 조합해서 쓸 수도 있습니다.</p>
+</div>
+</div>
+
+<!-- ====== 환경 정보 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 환경 정보</span>
+
+<span class="tbl">| 항목 | 값                         |
+|------|----------------------------|
+| OS   | Windows 11                 |
+| IDE  | VSCode / Antigravity       |
+| AI   | Claude Max, Gemini, GPT    |</span>
+</div>
+<div class="cell-note y">
+  <span class="badge be">수정 가능</span>
+  <h4>본인 환경으로 바꾸세요</h4>
+  <p>AI에게 "내 환경 정보 정리해줘"라고 하면 알아서 채워줍니다. 이게 있으면 AI가 <strong>매번 "어떤 프레임워크 쓰세요?" 물어보지 않고</strong> 바로 해당 기술로 코드를 생성합니다.</p>
+</div>
+</div>
+
+<!-- ====== 세션 모드 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 세션 모드 시스템</span>
+
+<span class="tbl">| 모드           | 트리거            | 동작                      |
+|----------------|-------------------|---------------------------|
+| <span class="bd">Plan-Light</span>  | "~할까?", 질문형  | 가벼운 분석, 선택지 제시   |
+| <span class="bd">Plan-Deep</span>   | "분석해줘"        | 심층 분석 + 경쟁 제품 비교 |
+| <span class="bd">Build</span>       | "만들어줘", 명령형 | GATE 발동 → 코드 생성     |</span>
+</div>
+<div class="cell-note b">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>말투에 따라 AI 모드가 바뀝니다</h4>
+  <p>"~할까?"라고 물어보면 가볍게 분석하고 선택지를 줍니다. "만들어줘"라고 하면 위에서 본 GATE 시스템이 발동됩니다. <strong>같은 AI인데 질문 방식에 따라 동작이 완전히 달라지는 것</strong>이 규칙 파일의 힘입니다.</p>
+</div>
+</div>
+
+<!-- ====== React 스킬 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## React 작업 자동 감지</span>
+
+<span class="bq">> 스킬 <span class="sk">`vercel-react-best-practices`</span> 기반</span>
+
+React/Next.js 키워드 감지 시:
+→ 스킬의 CRITICAL 8 규칙 자동 적용
+  (Defer Await, Suspense, Barrel Import 회피 등)
+</div>
+<div class="cell-note g">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>도구(스킬): React 자동 최적화</h4>
+  <p>React 관련 코드를 쓸 때 <strong>AI가 자동으로 감지하고 성능 최적화 8가지 규칙을 적용</strong>합니다. 여러분이 "React 최적화해줘"라고 말할 필요도 없습니다. 키워드만 감지되면 스킬이 알아서 발동됩니다.</p>
+</div>
+</div>
+
+<!-- ====== 보안 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 필수 보안 규칙</span>
+
+<span class="h3">### Git Push 전 검증 (필수!)</span>
+<span class="cd">grep -rE "(AIzaSy|sk-|ghp_|gho_)" .</span>
+
+<span class="tbl">| 금지 패턴           | 올바른 방식                     |
+|---------------------|--------------------------------|
+| <span class="kw">AIzaSy...</span> (Google) | os.getenv('GOOGLE_API_KEY')    |
+| <span class="kw">sk-...</span> (OpenAI)    | os.getenv('OPENAI_KEY')        |
+| <span class="kw">ghp_...</span> (GitHub)   | os.getenv('GITHUB_TOKEN')      |</span>
+</div>
+<div class="cell-note r">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>API 키 유출 = 수백만 원 과금</h4>
+  <p>실제로 GitHub에 API 키를 실수로 올려서 수백만 원이 과금된 사례가 많습니다. 이 규칙이 있으면 AI가 코드를 만들 때 <strong>자동으로 .env 파일 방식을 사용</strong>합니다. 실수로 키를 코드에 직접 쓰면 AI가 즉시 경고합니다.</p>
+</div>
+</div>
+
+<!-- ====== 코드 리뷰 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 코드 리뷰</span>
+
+<span class="bq">> 스킬 <span class="sk">`requesting-code-review`</span>
+> + <span class="sk">`receiving-code-review`</span> 기반</span>
+
+핵심 원칙: 전체 검토 후 한꺼번에 보고
+("일단 이것만" 금지)
+1. 입력 확인 → 2. 출력 확인
+3. 구조 매칭 → 4. 전체 흐름
+</div>
+<div class="cell-note g">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>도구(스킬): 코드 리뷰 자동화</h4>
+  <p>"검토해줘" 한마디면 <strong>입력→출력→전체 흐름을 한 번에 검토</strong>합니다. "일단 이것만 볼게요"라고 대충 넘어가는 걸 금지시켜놨기 때문에, 모든 문제를 한 번에 찾아서 보고합니다.</p>
+</div>
+</div>
+
+<!-- ====== 에이전트 부서 = 핵심 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 에이전트 부서 라우팅</span>
+
+<span class="bq">> 스킬 <span class="sk">`dispatching-parallel-agents`</span>
+> + <span class="sk">`subagent-driven-development`</span> 기반
+> 상세 설정: routing.json</span>
+
+<span class="tbl">| 부서 | 에이전트                          | 트리거         |
+|------|----------------------------------|----------------|
+| 검증 | <span class="ag">pillar-gate</span>              | 검증/리뷰      |
+|      | <span class="ag">code-reviewer</span>            | /보안          |
+|      | <span class="ag">security-scanner</span>         | /디버깅        |
+|      | <span class="ag">pattern-debugger</span>         |                |
+| 개발 | <span class="ag">python-backend</span>           | Python/React   |
+|      | <span class="ag">frontend-react</span>           | /n8n/구현      |
+|      | <span class="ag">n8n-builder</span>              |                |
+| 설계 | <span class="ag">architect</span>                 | 설계/아키텍처  |</span>
+
+3개 이상 파일 변경 시 토론 패턴 자동 발동
+(<span class="ag">architect</span> + <span class="ag">code-reviewer</span> 병렬)
+</div>
+<div class="cell-note b">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>핵심: "직원(서브에이전트)" 부서</h4>
+  <p><strong>이 표 하나가 AI를 팀으로 만듭니다.</strong></p>
+  <p class="detail"><strong style="color:var(--blu);">검증부 4명</strong> - code-reviewer(코드 리뷰), security-scanner(보안 검사), pattern-debugger(패턴 분석), pillar-gate(품질 관문)</p>
+  <p class="detail"><strong style="color:var(--blu);">개발부 3명</strong> - frontend-react(화면 개발), python-backend(서버 개발), n8n-builder(자동화)</p>
+  <p class="detail"><strong style="color:var(--blu);">설계부 1명</strong> - architect(전체 구조 설계)</p>
+  <p class="detail">파일이 3개 이상 바뀌면, <strong>설계팀이 먼저 구조를 잡고 → 개발팀이 코딩하고 → 검증팀이 리뷰</strong>합니다. 앞에서 본 스킬이 "도구"라면, 이 에이전트들은 "직원"입니다. 텍스트를 넣어둔 것뿐인데 AI 행동이 완전히 달라집니다.</p>
+</div>
+</div>
+
+<!-- ====== 검증 + 완료 체크리스트 ====== -->
+<div class="row">
+<div class="cell-code" style="background:var(--sf);">
+<span class="h2">## 검증 시스템 역할 분리</span>
+
+<span class="tbl">| 상황               | 시스템          | 명령          |
+|--------------------|-----------------|--------------|
+| 코드 생성 후 검증   | Pillar (GATE)  | /v 또는 자동  |
+| 커밋 전 전체 검증   | 보안 스캔 + lint | 자동         |</span>
+
+<span class="h2" style="margin-top:16px;">## 작업 완료 체크리스트</span>
+
+- 보안 스캔 통과 (High 0)
+- 빌드 경고 0개
+- PR 링크 제공
+- Git 브랜치: main
+</div>
+<div class="cell-note b">
+  <span class="badge bl">그대로 두세요</span>
+  <h4>AI가 "다 했어요" 할 때의 기준</h4>
+  <p>AI가 작업 완료를 선언하려면 이 4가지를 모두 통과해야 합니다. <strong>보안 스캔 통과 + 빌드 경고 0개 + PR 링크 제공까지.</strong> "대충 했어요"가 불가능한 구조입니다.</p>
+</div>
+</div>
+
+
+</body>
+</html>
